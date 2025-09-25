@@ -9,12 +9,26 @@ body {
     background-color: #000;
     color: #fff;
     line-height: 1.6;
+    position: relative;
+    overflow-x: hidden;
+}
+
+#particles-js {  /* Nowe: tło particles */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 }
 
 header {
-    background: #111;
+    background: rgba(17, 17, 17, 0.9);  /* Półprzezroczyste dla particles */
     padding: 1rem;
     border-bottom: 1px solid #333;
+    backdrop-filter: blur(10px);  /* Blur dla "szklanego" efektu */
+    position: relative;
+    z-index: 1;
 }
 
 nav {
@@ -28,6 +42,19 @@ nav {
 h1 {
     font-size: 1.5rem;
     font-weight: 600;
+    overflow: hidden;  /* Dla typing animacji */
+    border-right: 2px solid #fff;
+    white-space: nowrap;
+    animation: typing 2s steps(20), blink 0.5s infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink {
+    50% { border-color: transparent; }
 }
 
 nav ul {
@@ -42,17 +69,20 @@ nav li {
 nav a {
     color: #fff;
     text-decoration: none;
-    transition: opacity 0.3s;
+    transition: opacity 0.3s, color 0.3s;
 }
 
 nav a:hover {
     opacity: 0.7;
+    color: #FFD700;  /* Złoty hover */
 }
 
 main {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1rem;
+    position: relative;
+    z-index: 1;
 }
 
 h2 {
@@ -73,14 +103,19 @@ h2 {
     margin: 1rem auto;
     display: block;
     padding: 0.5rem;
-    background: #222;
+    background: rgba(34, 34, 34, 0.8);  /* Półprzezroczyste */
     border: 1px solid #333;
     color: #fff;
     border-radius: 4px;
+    transition: box-shadow 0.3s;
+}
+
+#search:focus {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .ranking-item {
-    background: #111;
+    background: rgba(17, 17, 17, 0.8);  /* Półprzezroczyste dla particles */
     padding: 1rem;
     margin: 1rem 0;
     border-radius: 8px;
@@ -89,18 +124,13 @@ h2 {
     justify-content: space-between;
     align-items: center;
     animation: fadeInUp 0.5s forwards;
-    transition: transform 0.3s ease;  /* Dla hover efektu */
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
 .ranking-item:hover {
-    transform: scale(1.02);  /* Lekkie powiększenie na hover */
-}
-
-.top-1 {  /* Nowe style dla pierwszej pozycji – złoty akcent */
-    background: linear-gradient(to right, #111, rgba(255, 215, 0, 0.1));  /* Subtelny złoty gradient */
-    border: 2px solid #FFD700;  /* Złota rama */
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);  /* Złoty glow/cień */
-    animation: fadeInUp 0.5s forwards, glowPulse 2s infinite alternate;  /* Animacja pulsu */
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
 @keyframes fadeInUp {
@@ -108,7 +138,14 @@ h2 {
     to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes glowPulse {  /* Subtelny puls złotej poświaty */
+.top-1 {
+    background: linear-gradient(to right, #111, rgba(255, 215, 0, 0.1));
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: fadeInUp 0.5s forwards, glowPulse 2s infinite alternate;
+}
+
+@keyframes glowPulse {
     from { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
     to { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
 }
@@ -122,15 +159,52 @@ h2 {
     margin: 1rem 0;
 }
 
-.progress-bar div {  /* Uniwersalny styl dla wewnętrznego diva – biały wypełniacz */
+.progress-bar div {
     height: 100%;
     background: #fff;
     width: 0%;
     transition: width 0.5s ease;
 }
 
-.top-1 .progress-bar div {  /* Złoty pasek dla top 1 */
-    background: #FFD700;  /* Złoty wypełniacz dla wyróżnienia */
+.top-1 .progress-bar div {
+    background: #FFD700;
+}
+
+.stats-section {  /* Nowe: sekcja statystyk */
+    display: flex;
+    justify-content: space-around;
+    background: rgba(17, 17, 17, 0.8);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    backdrop-filter: blur(5px);
+    border: 1px solid #333;
+}
+
+.stat-item {
+    text-align: center;
+    color: #ccc;
+}
+
+.stat-item i {
+    font-size: 1.5rem;
+    color: #FFD700;  /* Złoty ikonki */
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.hashtag-badge {
+    background: #FFD700;
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.3s;
+}
+
+.hashtag-badge:hover {
+    transform: scale(1.05);
 }
 
 .vote-button {
@@ -175,74 +249,6 @@ h2 {
     margin: 1rem 0;
 }
 
-#share-section button {
-    background: #222;
-    color: #fff;
-    border: 1px solid #333;
-    padding: 0.5rem 1rem;
-    margin: 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-form {
-    background: #111;
-    padding: 2rem;
-    border-radius: 8px;
-    margin: 2rem 0;
-}
-
-form input {
-    width: 100%;
-    padding: 0.5rem;
-    margin: 0.5rem 0;
-    background: #222;
-    border: 1px solid #333;
-    color: #fff;
-    border-radius: 4px;
-}
-
-form button {
-    background: #fff;
-    color: #000;
-    border: none;
-    padding: 1rem;
-    width: 100%;
-    font-weight: 600;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#vote-link {
-    width: 100%;
-    padding: 0.5rem;
-    background: #222;
-    border: 1px solid #333;
-    color: #fff;
-    margin: 1rem 0;
-}
-
-.ranking-photo {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 1rem;
-    border: 2px solid #333;
-}
-
-.no-photo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-size: 12px;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: #333;
-    margin-right: 1rem;
-}
 .tiktok-btn {
     display: inline-flex;
     align-items: center;
@@ -286,14 +292,95 @@ form button {
     opacity: 0.8;
 }
 
+#share-section button {
+    background: #222;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#share-section button:hover {
+    background: #333;
+}
+
+form {
+    background: rgba(17, 17, 17, 0.8);
+    padding: 2rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    backdrop-filter: blur(5px);
+    border: 1px solid #333;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    background: #222;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 4px;
+}
+
+form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+form button {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 1rem;
+    width: 100%;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+form button:hover {
+    background: #eee;
+}
+
+#vote-link {
+    width: 100%;
+    padding: 0.5rem;
+    background: #222;
+    border: 1px solid #333;
+    color: #fff;
+    margin: 1rem 0;
+}
+
+.ranking-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+    border: 2px solid #333;
+}
+
+.no-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #333;
+    margin-right: 1rem;
+}
+
 @media (max-width: 768px) {
-    
     nav {
         flex-direction: column;
-    }
-    .tiktok-btn {
-        width: 100%;
-        justify-content: center;
     }
     .ranking-item {
         flex-direction: column;
@@ -302,6 +389,12 @@ form button {
     .ranking-photo, .no-photo {
         margin: 0 auto 1rem;
     }
+    .stats-section {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .tiktok-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
-
-
