@@ -11,12 +11,8 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const storage = firebase.storage();  // Dla uploadu zdjęć
 
 const ADMIN_PASSWORD = 'admin123';
-
-const db = firebase.database();
-const storage = firebase.storage();
 
 function loginAdmin() {
     const password = document.getElementById('admin-password').value;
@@ -36,7 +32,7 @@ function addOwner(e) {
     const name = document.getElementById('owner-name').value;
     const handle = document.getElementById('tiktok-handle').value;
     const link = document.getElementById('tiktok-link').value;
-    const file = document.getElementById('photo-upload').files[0];
+    const photoUrl = document.getElementById('photo-url').value;  // Nowy input dla URL zdjęcia
 
     const newOwnerRef = db.ref('owners').push();
     const ownerId = newOwnerRef.key;
@@ -50,21 +46,13 @@ function addOwner(e) {
         createdAt: Date.now()
     };
 
-    if (file) {
-        const storageRef = storage.ref(`photos/${ownerId}.jpg`);
-        storageRef.put(file).then(snapshot => {
-            snapshot.ref.getDownloadURL().then(url => {
-                updates.photoUrl = url;
-                newOwnerRef.set(updates);
-                generateQR(voteLink);
-                loadOwners();
-            });
-        });
-    } else {
-        newOwnerRef.set(updates);
-        generateQR(voteLink);
-        loadOwners();
+    if (photoUrl) {
+        updates.photoUrl = photoUrl;  // Bezpośrednio zapisz URL
     }
+
+    newOwnerRef.set(updates);
+    generateQR(voteLink);
+    loadOwners();
 
     document.getElementById('vote-link').value = voteLink;
     document.getElementById('qr-section').style.display = 'block';
@@ -104,5 +92,4 @@ function loadOwners() {
             list.appendChild(div);
         });
     });
-
 }
