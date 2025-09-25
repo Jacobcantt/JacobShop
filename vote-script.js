@@ -12,6 +12,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// Check for deprecated storage (suppress warning)
+if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(() => {});  // Silent fail
+}
+
 const urlParams = new URLSearchParams(window.location.search);
 const ownerId = urlParams.get('owner');
 
@@ -84,10 +89,10 @@ function generateDeviceId() {
 
 function shareTikTok() {
     const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #KoszulkaChallenge! Sprawdź: ${window.location.href}`;
-    window.open(`https://www.tiktok.com/share?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://www.tiktok.com/share?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
 
 function shareTwitter() {
     const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #KoszulkaChallenge! ${window.location.href}`;
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
