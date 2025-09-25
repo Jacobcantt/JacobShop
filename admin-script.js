@@ -43,7 +43,8 @@ function addOwner(e) {
     const name = document.getElementById('owner-name').value;
     const handle = document.getElementById('tiktok-handle').value;
     const link = document.getElementById('tiktok-link').value;
-    const photoUrl = document.getElementById('photo-url').value;  // Nowy input dla URL zdjęcia
+    const photoUrl = document.getElementById('photo-url').value;
+    const bio = document.getElementById('owner-bio').value.trim();  // Nowy: opis
 
     const newOwnerRef = db.ref('owners').push();
     const ownerId = newOwnerRef.key;
@@ -58,7 +59,10 @@ function addOwner(e) {
     };
 
     if (photoUrl) {
-        updates.photoUrl = photoUrl;  // Bezpośrednio zapisz URL
+        updates.photoUrl = photoUrl;
+    }
+    if (bio) {
+        updates.bio = bio;  // Zapisz bio jeśli podane
     }
 
     newOwnerRef.set(updates).then(() => {
