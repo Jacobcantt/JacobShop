@@ -25,6 +25,7 @@ function loadRanking() {
             owners.push(owner);
             totalVotes += owner.votes || 0;  // Suma wszystkich głosów
         });
+        console.log('Suma głosów w rankingu:', totalVotes);  // Debug – sprawdź w F12
         owners.sort((a, b) => b.votes - a.votes);
         displayRanking(owners.slice(0, 10), totalVotes);
 
@@ -36,6 +37,7 @@ function loadRanking() {
             // Dla search: przelicz sumę tylko dla filtered
             let filteredTotal = 0;
             filtered.forEach(o => filteredTotal += o.votes || 0);
+            console.log('Suma głosów w search:', filteredTotal);  // Debug
             displayRanking(filtered.slice(0, 10), filteredTotal);
         });
     });
@@ -49,10 +51,10 @@ function displayRanking(owners, totalVotes) {
         return;
     }
     owners.forEach((owner, index) => {
-        const progressPercent = totalVotes > 0 ? (owner.votes / totalVotes) * 100 : 0;
+        const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : (owners.length > 0 ? 100 : 0);  // Fallback 100% jeśli total=0
         const item = document.createElement('div');
         item.className = 'ranking-item';
-        const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:1rem;">` : '';
+        const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" class="ranking-photo">` : '<div class="no-photo" style="width:80px; height:80px; border-radius:50%; background:#333; margin-right:1rem;"></div>';  // Fallback placeholder
         item.innerHTML = `
             <div style="display:flex; align-items:center;">
                 ${photoHtml}
