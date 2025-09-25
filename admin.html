@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Koszulka Challenge</title>
+    <title>Admin - VoteWear</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 </head>
 <body>
+    <div id="particles-js"></div> <!-- Particles dla spójności -->
     <header>
         <nav>
-            <h1><a href="index.html">Koszulka Challenge - Admin</a></h1>
+            <div style="display:flex; align-items:center;">
+                <img src="https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a" alt="VoteWear Logo" class="logo">
+                <h1><a href="index.html">VoteWear - Admin</a></h1>
+            </div>
         </nav>
     </header>
 
@@ -20,7 +24,7 @@
         <section id="login" style="display:block;">
             <h2>Login Admin</h2>
             <form id="login-form">
-                <input type="hidden" name="username" value="admin"> <!-- Fix accessibility -->
+                <input type="hidden" name="username" value="admin">
                 <input type="password" id="admin-password" name="admin-password" autocomplete="new-password" placeholder="Hasło">
                 <button type="button" onclick="loginAdmin()">Zaloguj</button>
             </form>
@@ -47,5 +51,16 @@
     </main>
 
     <script src="admin-script.js"></script>
+    <script>
+        // Particles dla admin (opcjonalnie)
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
+                    particles: { number: { value: 30 }, color: { value: '#ffffff' }, opacity: { value: 0.2 }, size: { value: 2 } },
+                    interactivity: { events: { onhover: { mode: 'repulse' } } }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
