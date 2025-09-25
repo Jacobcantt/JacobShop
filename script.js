@@ -1,12 +1,12 @@
 // Firebase Config - Wklej swój config tutaj!
 const firebaseConfig = {
-    // apiKey: "YOUR_API_KEY",
-    // authDomain: "YOUR_PROJECT.firebaseapp.com",
-    // databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-    // projectId: "YOUR_PROJECT",
-    // storageBucket: "YOUR_PROJECT.appspot.com",
-    // messagingSenderId: "123",
-    // appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCs4_DmcFIn4mszvvooOjJu2d1RYZXcJkY",
+  authDomain: "koszulka-challenge.firebaseapp.com",
+  databaseURL: "https://koszulka-challenge-default-rtdb.firebaseio.com",  // Dodane! Sprawdź w Console jeśli region inny.
+  projectId: "koszulka-challenge",
+  storageBucket: "koszulka-challenge.firebasestorage.app",
+  messagingSenderId: "291495913939",
+  appId: "1:291495913939:web:ef288cc85dd7a10887e726"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -55,5 +55,6 @@ function displayRanking(owners) {
         rankingList.appendChild(item);
     });
 }
+
 
 loadRanking();
