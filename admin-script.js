@@ -2,7 +2,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyCs4_DmcFIn4mszvvooOjJu2d1RYZXcJkY",
   authDomain: "koszulka-challenge.firebaseapp.com",
-  databaseURL: "https://koszulka-challenge-default-rtdb.firebaseio.com",
+  databaseURL: "https://koszulka-challenge-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "koszulka-challenge",
   storageBucket: "koszulka-challenge.firebasestorage.app",
   messagingSenderId: "291495913939",
@@ -61,15 +61,23 @@ function addOwner(e) {
         updates.photoUrl = photoUrl;  // Bezpośrednio zapisz URL
     }
 
-    newOwnerRef.set(updates);
-    generateQR(voteLink);
-    loadOwners();
+    newOwnerRef.set(updates).then(() => {
+        generateQR(voteLink);
+        loadOwners();
+    }).catch(err => {
+        console.error('Błąd zapisu:', err);
+        alert('Błąd dodawania właściciela – sprawdź konsolę.');
+    });
 
     document.getElementById('vote-link').value = voteLink;
     document.getElementById('qr-section').style.display = 'block';
 }
 
 function generateQR(url) {
+    if (typeof QRCode === 'undefined') {
+        alert('Biblioteka QR nie załadowana – sprawdź połączenie lub odśwież stronę.');
+        return;
+    }
     QRCode.toCanvas(document.getElementById('qr-canvas'), url, { width: 200, colorDark: '#000000', colorLight: '#ffffff' });
 }
 
