@@ -18,25 +18,30 @@ function loadRanking() {
 
     db.ref('owners').once('value').then(snapshot => {
         let owners = [];
+        let totalVotes = 0;
         snapshot.forEach(child => {
             const owner = child.val();
             owner.id = child.key;
             owners.push(owner);
+            totalVotes += owner.votes || 0;  // Suma wszystkich głosów
         });
         owners.sort((a, b) => b.votes - a.votes);
-        displayRanking(owners.slice(0, 10));
+        displayRanking(owners.slice(0, 10), totalVotes);
 
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             const filtered = owners.filter(o => 
                 o.name.toLowerCase().includes(query) || o.tiktokHandle.toLowerCase().includes(query)
             );
-            displayRanking(filtered.slice(0, 10));
+            // Dla search: przelicz sumę tylko dla filtered
+            let filteredTotal = 0;
+            filtered.forEach(o => filteredTotal += o.votes || 0);
+            displayRanking(filtered.slice(0, 10), filteredTotal);
         });
     });
 }
 
-function displayRanking(owners) {
+function displayRanking(owners, totalVotes) {
     const rankingList = document.getElementById('ranking-list');
     rankingList.innerHTML = '';
     if (owners.length === 0) {
@@ -44,15 +49,18 @@ function displayRanking(owners) {
         return;
     }
     owners.forEach((owner, index) => {
-        const maxVotes = Math.max(...owners.map(o => o.votes));
-        const progressPercent = maxVotes > 0 ? (owner.votes / maxVotes) * 100 : 0;
+        const progressPercent = totalVotes > 0 ? (owner.votes / totalVotes) * 100 : 0;
         const item = document.createElement('div');
         item.className = 'ranking-item';
+        const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; margin-right:1rem;">` : '';
         item.innerHTML = `
-            <div>
-                <h3>${index + 1}. ${owner.name}</h3>
-                <p>${owner.tiktokHandle} | ${owner.votes} głosów</p>
-                <a href="vote.html?owner=${owner.id}" style="color: #ccc;">Zobacz profil</a>
+            <div style="display:flex; align-items:center;">
+                ${photoHtml}
+                <div>
+                    <h3>${index + 1}. ${owner.name}</h3>
+                    <p>${owner.tiktokHandle} | ${owner.votes} głosów</p>
+                    <a href="vote.html?owner=${owner.id}&source=ranking" style="color: #ccc;">Zobacz profil</a>
+                </div>
             </div>
             <div class="progress-bar">
                 <div style="width: ${progressPercent}%;"></div>
