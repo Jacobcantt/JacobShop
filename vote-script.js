@@ -19,6 +19,7 @@ if (navigator.storage && navigator.storage.persist) {
 
 const urlParams = new URLSearchParams(window.location.search);
 const ownerId = urlParams.get('owner');
+const source = urlParams.get('source');  // 'ranking' ukrywa głosowanie
 
 if (ownerId) {
     loadOwner(ownerId);
@@ -46,21 +47,33 @@ function loadOwner(id) {
         document.getElementById('tiktok-video').style.display = 'block';
 
         const progressFill = document.getElementById('progress-fill');
-        // Pobierz max votes dla %
+        // Pobierz sumę wszystkich votes dla %
         db.ref('owners').once('value').then(snap => {
-            let maxVotes = 0;
-            snap.forEach(child => { if (child.val().votes > maxVotes) maxVotes = child.val().votes; });
-            progressFill.style.width = maxVotes ? `${(owner.votes / maxVotes) * 100}%` : '0%';
+            let totalVotes = 0;
+            snap.forEach(child => { totalVotes += child.val().votes || 0; });
+            const progressPercent = totalVotes > 0 ? (owner.votes / totalVotes) * 100 : 0;
+            progressFill.style.width = `${progressPercent}%`;
         });
 
         const voteBtn = document.getElementById('vote-btn');
-        const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
-        const votedKey = `voted_${id}_${deviceId}`;
-        if (localStorage.getItem(votedKey)) {
-            voteBtn.disabled = true;
-            voteBtn.textContent = 'Już zagłosowałeś!';
+        const shareSection = document.getElementById('share-section');
+
+        // Ukryj głosowanie jeśli z rankingu
+        if (source === 'ranking') {
+            voteBtn.style.display = 'none';
+            document.getElementById('votes-count').innerHTML += ' <span style="color:#ccc;">(Tylko dla skanujących QR)</span>';
+            shareSection.style.display = 'none';
+            document.title = `Profil: ${owner.name} - Koszulka Challenge`;
         } else {
-            voteBtn.addEventListener('click', () => voteForOwner(id));
+            // Normalne głosowanie
+            const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
+            const votedKey = `voted_${id}_${deviceId}`;
+            if (localStorage.getItem(votedKey)) {
+                voteBtn.disabled = true;
+                voteBtn.textContent = 'Już zagłosowałeś!';
+            } else {
+                voteBtn.addEventListener('click', () => voteForOwner(id));
+            }
         }
     });
 }
