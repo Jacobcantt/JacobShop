@@ -6,6 +6,7 @@
     <title>Głosuj na Właściciela</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> <!-- Ikony Font Awesome -->
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 </head>
@@ -28,6 +29,7 @@
                 </div>
                 <p id="votes-count">0 głosów</p>
                 <button id="vote-btn" class="vote-button">Głosuj!</button>
+                <div id="owner-bio" class="bio-section" style="display:none;"></div> <!-- Nowa sekcja bio -->
                 <div id="share-section" style="display:none;">
                     <h3>Podziel się!</h3>
                     <button onclick="shareTikTok()">TikTok</button>
@@ -40,5 +42,3 @@
     <script src="vote-script.js"></script>
 </body>
 </html>
-
-
