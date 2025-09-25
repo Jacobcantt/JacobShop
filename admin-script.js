@@ -25,6 +25,17 @@ function loginAdmin() {
     }
 }
 
+// Prevent default submit for login form (fix form warning)
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            loginAdmin();
+        });
+    }
+});
+
 document.getElementById('add-owner-form').addEventListener('submit', addOwner);
 
 function addOwner(e) {
