@@ -206,7 +206,9 @@ form button {
     color: #fff;
     margin: 1rem 0;
 }
-
+.ranking-item img {
+    border: 1px solid #333;
+}
 @media (max-width: 768px) {
     nav {
         flex-direction: column;
@@ -215,8 +217,7 @@ form button {
         flex-direction: column;
         text-align: center;
     }
-    .ranking-item img {
-    border: 1px solid #333;
+    
 }
-}
+
 
