@@ -105,7 +105,7 @@ h2 {
     margin: 1rem 0;
 }
 
-#progress-fill {
+.progress-bar div {  /* Uniwersalny styl dla wewnętrznego diva – biały wypełniacz */
     height: 100%;
     background: #fff;
     width: 0%;
@@ -192,12 +192,6 @@ form button {
     cursor: pointer;
 }
 
-#qr-canvas {
-    display: block;
-    margin: 1rem auto;
-    border: 1px solid #fff;
-}
-
 #vote-link {
     width: 100%;
     padding: 0.5rem;
@@ -206,9 +200,7 @@ form button {
     color: #fff;
     margin: 1rem 0;
 }
-.ranking-item img {
-    border: 1px solid #333;
-}
+
 .ranking-photo {
     width: 80px;
     height: 80px;
@@ -224,7 +216,13 @@ form button {
     justify-content: center;
     color: #666;
     font-size: 12px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #333;
+    margin-right: 1rem;
 }
+
 @media (max-width: 768px) {
     nav {
         flex-direction: column;
@@ -233,8 +231,7 @@ form button {
         flex-direction: column;
         text-align: center;
     }
-    
+    .ranking-photo, .no-photo {
+        margin: 0 auto 1rem;
+    }
 }
-
-
-
