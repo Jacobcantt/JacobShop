@@ -54,7 +54,7 @@ function displayRanking(owners, totalVotes) {
         const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : (owners.length > 0 ? 100 : 0);  // Fallback 100% jeśli total=0
         const item = document.createElement('div');
         item.className = 'ranking-item';
-        const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" class="ranking-photo">` : '<div class="no-photo" style="width:80px; height:80px; border-radius:50%; background:#333; margin-right:1rem;"></div>';  // Fallback placeholder
+        const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" class="ranking-photo">` : '<div class="no-photo">?</div>';  // Fallback placeholder
         item.innerHTML = `
             <div style="display:flex; align-items:center;">
                 ${photoHtml}
@@ -65,7 +65,7 @@ function displayRanking(owners, totalVotes) {
                 </div>
             </div>
             <div class="progress-bar">
-                <div style="width: ${progressPercent}%;"></div>
+                <div class="progress-fill" style="width: ${progressPercent}% !important;"></div>  <!-- Dodany class i !important dla pewności -->
             </div>
         `;
         rankingList.appendChild(item);
