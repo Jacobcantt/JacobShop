@@ -1,4 +1,19 @@
-const ADMIN_PASSWORD = 'admin123'; // ZMIEŃ TO!
+// Twój config Firebase – wklejony!
+const firebaseConfig = {
+  apiKey: "AIzaSyCs4_DmcFIn4mszvvooOjJu2d1RYZXcJkY",
+  authDomain: "koszulka-challenge.firebaseapp.com",
+  databaseURL: "https://koszulka-challenge-default-rtdb.firebaseio.com",
+  projectId: "koszulka-challenge",
+  storageBucket: "koszulka-challenge.firebasestorage.app",
+  messagingSenderId: "291495913939",
+  appId: "1:291495913939:web:ef288cc85dd7a10887e726"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const storage = firebase.storage();  // Dla uploadu zdjęć
+
+const ADMIN_PASSWORD = 'admin123';
 
 const db = firebase.database();
 const storage = firebase.storage();
@@ -89,4 +104,5 @@ function loadOwners() {
             list.appendChild(div);
         });
     });
+
 }
