@@ -74,18 +74,31 @@ function addOwner(e) {
 }
 
 function generateQR(url) {
+    const canvas = document.getElementById('qr-canvas');
     if (typeof QRCode === 'undefined') {
-        alert('Biblioteka QR nie załadowana – sprawdź połączenie lub odśwież stronę.');
+        alert('Biblioteka QR nie załadowana – sprawdź połączenie lub odśwież stronę. Fallback: Użyj linku poniżej do ręcznego QR.');
         return;
     }
-    QRCode.toCanvas(document.getElementById('qr-canvas'), url, { width: 200, colorDark: '#000000', colorLight: '#ffffff' });
+    // Użyj nowej biblioteki qrcodejs API
+    new QRCode(canvas, {
+        text: url,
+        width: 200,
+        height: 200,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H  // Wysoka korekcja błędów
+    });
 }
 
 function downloadQR() {
     const canvas = document.getElementById('qr-canvas');
+    if (!canvas || canvas.toDataURL === undefined) {
+        alert('QR nie wygenerowany – spróbuj ponownie.');
+        return;
+    }
     const link = document.createElement('a');
     link.download = 'qr-code.png';
-    link.href = canvas.toDataURL();
+    link.href = canvas.toDataURL('image/png');
     link.click();
 }
 
