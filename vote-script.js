@@ -46,13 +46,13 @@ function loadOwner(id) {
         document.getElementById('tiktok-video').innerHTML = `<a href="${owner.tiktokLink}" target="_blank" style="color:#fff; text-decoration:underline;">Obejrzyj profil na TikTok</a>`;
         document.getElementById('tiktok-video').style.display = 'block';
 
-        const progressFill = document.getElementById('progress-fill');
         // Pobierz sumę wszystkich votes dla %
         db.ref('owners').once('value').then(snap => {
             let totalVotes = 0;
             snap.forEach(child => { totalVotes += child.val().votes || 0; });
-            const progressPercent = totalVotes > 0 ? (owner.votes / totalVotes) * 100 : 0;
-            progressFill.style.width = `${progressPercent}%`;
+            const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
+            console.log('Progress % w profilu:', progressPercent, 'Suma:', totalVotes);  // Debug
+            document.querySelector('.progress-fill').style.width = `${progressPercent}%`;  // Użyj class zamiast id
         });
 
         const voteBtn = document.getElementById('vote-btn');
