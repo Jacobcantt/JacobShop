@@ -361,7 +361,7 @@ form button:hover {
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    margin-right: 1rem;
+    margin-right: 5rem;
     border: 2px solid #333;
 }
 
@@ -452,4 +452,5 @@ form button:hover {
 .top-2 .progress-bar div, .top-3 .progress-bar div {
     background: #C0C0C0;  /* Srebrny/brązowy pasek */
 }
+
 
