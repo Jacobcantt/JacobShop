@@ -52,8 +52,9 @@ function displayRanking(owners, totalVotes) {
     }
     owners.forEach((owner, index) => {
         const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : (owners.length > 0 ? 100 : 0);  // Fallback 100% jeśli total=0
+        const isTop1 = index === 0;  // Check dla pierwszej pozycji
         const item = document.createElement('div');
-        item.className = 'ranking-item';
+        item.className = `ranking-item ${isTop1 ? 'top-1' : ''}`;  // Dodaj class "top-1" dla pierwszego
         const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" class="ranking-photo">` : '<div class="no-photo">?</div>';  // Fallback placeholder
         item.innerHTML = `
             <div style="display:flex; align-items:center;">
