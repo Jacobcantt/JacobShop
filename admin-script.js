@@ -62,44 +62,15 @@ function addOwner(e) {
     }
 
     newOwnerRef.set(updates).then(() => {
-        generateQR(voteLink);
+        console.log('Właściciel dodany pomyślnie!');
         loadOwners();
     }).catch(err => {
-        console.error('Błąd zapisu:', err);
-        alert('Błąd dodawania właściciela – sprawdź konsolę.');
+        console.error('Błąd zapisu do Firebase:', err);
+        alert('Błąd dodawania właściciela – sprawdź połączenie z Firebase.');
     });
 
     document.getElementById('vote-link').value = voteLink;
     document.getElementById('qr-section').style.display = 'block';
-}
-
-function generateQR(url) {
-    const canvas = document.getElementById('qr-canvas');
-    if (typeof QRCode === 'undefined') {
-        alert('Biblioteka QR nie załadowana – sprawdź połączenie lub odśwież stronę. Fallback: Użyj linku poniżej do ręcznego QR.');
-        return;
-    }
-    // Użyj nowej biblioteki qrcodejs API
-    new QRCode(canvas, {
-        text: url,
-        width: 200,
-        height: 200,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H  // Wysoka korekcja błędów
-    });
-}
-
-function downloadQR() {
-    const canvas = document.getElementById('qr-canvas');
-    if (!canvas || canvas.toDataURL === undefined) {
-        alert('QR nie wygenerowany – spróbuj ponownie.');
-        return;
-    }
-    const link = document.createElement('a');
-    link.download = 'qr-code.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
 }
 
 function copyLink() {
@@ -123,5 +94,7 @@ function loadOwners() {
             `;
             list.appendChild(div);
         });
+    }).catch(err => {
+        console.error('Błąd ładowania właścicieli:', err);
     });
 }
