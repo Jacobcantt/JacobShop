@@ -87,10 +87,9 @@ function loadOwners() {
             div.className = 'ranking-item';
             div.innerHTML = `
                 <span>${owner.name} (@${owner.tiktokHandle}) - ${owner.votes} głosów</span>
-                <a href="/vote.html?owner=${child.key}">Link głosowania</a>
+                <a href="vote.html?owner=${child.key}">Link głosowania</a>
             `;
             list.appendChild(div);
         });
     });
 }
-
