@@ -378,16 +378,38 @@ form button:hover {
     margin-right: 1rem;
 }
 
+.logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    border: 2px solid #FFD700;  /* Złota rama dla logo */
+    transition: transform 0.3s;
+}
+
+.logo:hover {
+    transform: scale(1.1);
+}
+
+/* Responsywność dla mobile – powiększone zdjęcia, stackowane elementy */
 @media (max-width: 768px) {
     nav {
         flex-direction: column;
+        gap: 1rem;
     }
     .ranking-item {
         flex-direction: column;
         text-align: center;
+        gap: 1rem;
     }
     .ranking-photo, .no-photo {
+        width: 100px;
+        height: 100px;
         margin: 0 auto 1rem;
+    }
+    .progress-bar {
+        align-self: center;
+        width: 80%;
     }
     .stats-section {
         flex-direction: column;
@@ -397,4 +419,37 @@ form button:hover {
         width: 100%;
         justify-content: center;
     }
+    h1 {
+        font-size: 1.8rem;  /* Większy tytuł na mobile */
+    }
 }
+
+/* Dla top-2 (srebrny) i top-3 (brązowy) */
+.top-2 {
+    background: linear-gradient(to right, #111, rgba(192, 192, 192, 0.1));
+    border: 2px solid #C0C0C0;
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
+    animation: fadeInUp 0.5s forwards, silverPulse 2s infinite alternate;
+}
+
+@keyframes silverPulse {
+    from { box-shadow: 0 0 15px rgba(192, 192, 192, 0.4); }
+    to { box-shadow: 0 0 25px rgba(192, 192, 192, 0.6); }
+}
+
+.top-3 {
+    background: linear-gradient(to right, #111, rgba(205, 127, 50, 0.1));
+    border: 2px solid #CD7F32;
+    box-shadow: 0 0 15px rgba(205, 127, 50, 0.4);
+    animation: fadeInUp 0.5s forwards, bronzePulse 2s infinite alternate;
+}
+
+@keyframes bronzePulse {
+    from { box-shadow: 0 0 15px rgba(205, 127, 50, 0.4); }
+    to { box-shadow: 0 0 25px rgba(205, 127, 50, 0.6); }
+}
+
+.top-2 .progress-bar div, .top-3 .progress-bar div {
+    background: #C0C0C0;  /* Srebrny/brązowy pasek */
+}
+
