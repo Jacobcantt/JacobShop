@@ -91,8 +91,10 @@ function displayRanking(owners, totalVotes) {
     owners.forEach((owner, index) => {
         const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : (owners.length > 0 ? 100 : 0);
         const isTop1 = index === 0;
+        const isTop2 = index === 1;
+        const isTop3 = index === 2;
         const item = document.createElement('div');
-        item.className = `ranking-item ${isTop1 ? 'top-1' : ''}`;
+        item.className = `ranking-item ${isTop1 ? 'top-1' : ''} ${isTop2 ? 'top-2' : ''} ${isTop3 ? 'top-3' : ''}`;
         const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" class="ranking-photo">` : '<div class="no-photo">?</div>';
         const voteIcon = owner.votes > 0 ? `<i class="fas fa-vote-yea" style="color:#FFD700; margin-left:0.5rem;"></i>` : '';
         const crown = isTop1 ? '<i class="fas fa-crown" style="color:#FFD700; margin-left:0.5rem;"></i>' : '';
