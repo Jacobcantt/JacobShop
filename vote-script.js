@@ -1,3 +1,18 @@
+// Twój config Firebase – wklejony!
+const firebaseConfig = {
+  apiKey: "AIzaSyCs4_DmcFIn4mszvvooOjJu2d1RYZXcJkY",
+  authDomain: "koszulka-challenge.firebaseapp.com",
+  databaseURL: "https://koszulka-challenge-default-rtdb.firebaseio.com",
+  projectId: "koszulka-challenge",
+  storageBucket: "koszulka-challenge.firebasestorage.app",
+  messagingSenderId: "291495913939",
+  appId: "1:291495913939:web:ef288cc85dd7a10887e726"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Reszta bez zmian (urlParams, loadOwner() itd.)
 const urlParams = new URLSearchParams(window.location.search);
 const ownerId = urlParams.get('owner');
 
@@ -81,4 +96,5 @@ function shareTikTok() {
 function shareTwitter() {
     const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #KoszulkaChallenge! ${window.location.href}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+
 }
