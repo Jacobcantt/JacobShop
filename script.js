@@ -1,8 +1,8 @@
-// Firebase Config - Wklej swój config tutaj!
+// Twój config Firebase – wklejony!
 const firebaseConfig = {
   apiKey: "AIzaSyCs4_DmcFIn4mszvvooOjJu2d1RYZXcJkY",
   authDomain: "koszulka-challenge.firebaseapp.com",
-  databaseURL: "https://koszulka-challenge-default-rtdb.firebaseio.com",  // Dodane! Sprawdź w Console jeśli region inny.
+  databaseURL: "https://koszulka-challenge-default-rtdb.firebaseio.com",
   projectId: "koszulka-challenge",
   storageBucket: "koszulka-challenge.firebasestorage.app",
   messagingSenderId: "291495913939",
@@ -39,22 +39,27 @@ function loadRanking() {
 function displayRanking(owners) {
     const rankingList = document.getElementById('ranking-list');
     rankingList.innerHTML = '';
+    if (owners.length === 0) {
+        rankingList.innerHTML = '<p style="text-align:center; color:#ccc;">Brak właścicieli – dodaj w adminie!</p>';
+        return;
+    }
     owners.forEach((owner, index) => {
+        const maxVotes = Math.max(...owners.map(o => o.votes));
+        const progressPercent = maxVotes > 0 ? (owner.votes / maxVotes) * 100 : 0;
         const item = document.createElement('div');
         item.className = 'ranking-item';
         item.innerHTML = `
             <div>
                 <h3>${index + 1}. ${owner.name}</h3>
                 <p>${owner.tiktokHandle} | ${owner.votes} głosów</p>
-                <a href="/vote.html?owner=${owner.id}" style="color: #ccc;">Zobacz profil</a>
+                <a href="vote.html?owner=${owner.id}" style="color: #ccc;">Zobacz profil</a>
             </div>
             <div class="progress-bar">
-                <div style="width: ${Math.min((owner.votes / Math.max(...owners.map(o => o.votes))) * 100, 100)}%;"></div>
+                <div style="width: ${progressPercent}%;"></div>
             </div>
         `;
         rankingList.appendChild(item);
     });
 }
-
 
 loadRanking();
