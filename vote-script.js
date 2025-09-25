@@ -2,7 +2,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyCs4_DmcFIn4mszvvooOjJu2d1RYZXcJkY",
   authDomain: "koszulka-challenge.firebaseapp.com",
-  databaseURL: "https://koszulka-challenge-default-rtdb.firebaseio.com",
+  databaseURL: "https://koszulka-challenge-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "koszulka-challenge",
   storageBucket: "koszulka-challenge.firebasestorage.app",
   messagingSenderId: "291495913939",
