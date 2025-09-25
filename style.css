@@ -89,11 +89,28 @@ h2 {
     justify-content: space-between;
     align-items: center;
     animation: fadeInUp 0.5s forwards;
+    transition: transform 0.3s ease;  /* Dla hover efektu */
+}
+
+.ranking-item:hover {
+    transform: scale(1.02);  /* Lekkie powiększenie na hover */
+}
+
+.top-1 {  /* Nowe style dla pierwszej pozycji – złoty akcent */
+    background: linear-gradient(to right, #111, rgba(255, 215, 0, 0.1));  /* Subtelny złoty gradient */
+    border: 2px solid #FFD700;  /* Złota rama */
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);  /* Złoty glow/cień */
+    animation: fadeInUp 0.5s forwards, glowPulse 2s infinite alternate;  /* Animacja pulsu */
 }
 
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowPulse {  /* Subtelny puls złotej poświaty */
+    from { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+    to { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
 }
 
 .progress-bar {
@@ -110,6 +127,10 @@ h2 {
     background: #fff;
     width: 0%;
     transition: width 0.5s ease;
+}
+
+.top-1 .progress-bar div {  /* Złoty pasek dla top 1 */
+    background: #FFD700;  /* Złoty wypełniacz dla wyróżnienia */
 }
 
 .vote-button {
