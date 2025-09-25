@@ -20,17 +20,19 @@
     <main>
         <section id="login" style="display:block;">
             <h2>Login Admin</h2>
-            <input type="password" id="admin-password" placeholder="Hasło">
-            <button onclick="loginAdmin()">Zaloguj</button>
+            <form id="login-form">
+                <input type="password" id="admin-password" name="admin-password" placeholder="Hasło">
+                <button type="button" onclick="loginAdmin()">Zaloguj</button>
+            </form>
         </section>
 
         <section id="admin-panel" style="display:none;">
             <h2>Dodaj Właściciela</h2>
             <form id="add-owner-form">
-                <input type="text" id="owner-name" placeholder="Imię/Nick">
-                <input type="text" id="tiktok-handle" placeholder="TikTok Handle (@example)">
-                <input type="url" id="tiktok-link" placeholder="Link do TikTok">
-                <input type="url" id="photo-url" placeholder="Link do zdjęcia (np. z TikTok)">
+                <input type="text" id="owner-name" name="owner-name" placeholder="Imię/Nick">
+                <input type="text" id="tiktok-handle" name="tiktok-handle" placeholder="TikTok Handle (@example)">
+                <input type="url" id="tiktok-link" name="tiktok-link" placeholder="Link do TikTok">
+                <input type="url" id="photo-url" name="photo-url" placeholder="Link do zdjęcia (np. z TikTok)">
                 <button type="submit">Dodaj i Generuj QR</button>
             </form>
             <div id="qr-section" style="display:none;">
