@@ -12,14 +12,29 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// Confetti lib (proste, na głosowanie)
+function confettiExplosion() {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+    script.onload = () => {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ffffff', '#FFD700']  // Biały i złoty
+        });
+    };
+    document.head.appendChild(script);
+}
+
 // Check for deprecated storage (suppress warning)
 if (navigator.storage && navigator.storage.persist) {
-    navigator.storage.persist().catch(() => {});  // Silent fail
+    navigator.storage.persist().catch(() => {});
 }
 
 const urlParams = new URLSearchParams(window.location.search);
 const ownerId = urlParams.get('owner');
-const source = urlParams.get('source');  // 'ranking' ukrywa głosowanie
+const source = urlParams.get('source');
 
 if (ownerId) {
     loadOwner(ownerId);
@@ -46,7 +61,7 @@ function loadOwner(id) {
         document.getElementById('tiktok-video').innerHTML = `<a href="${owner.tiktokLink}" target="_blank" class="tiktok-btn"><i class="fab fa-tiktok"></i> Obejrzyj na TikTok</a>`;
         document.getElementById('tiktok-video').style.display = 'block';
 
-        // Nowe: Bio właściciela
+        // Bio właściciela
         const bioSection = document.getElementById('owner-bio');
         if (owner.bio && owner.bio.trim()) {
             bioSection.innerHTML = `<i class="fas fa-quote-left" style="color:#ccc; margin-right:0.5rem;"></i><span>${owner.bio}</span>`;
@@ -58,21 +73,19 @@ function loadOwner(id) {
             let totalVotes = 0;
             snap.forEach(child => { totalVotes += child.val().votes || 0; });
             const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
-            console.log('Progress % w profilu:', progressPercent, 'Suma:', totalVotes);  // Debug
-            document.querySelector('.progress-fill').style.width = `${progressPercent}%`;  // Użyj class zamiast id
+            console.log('Progress % w profilu:', progressPercent, 'Suma:', totalVotes);
+            document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
         });
 
         const voteBtn = document.getElementById('vote-btn');
         const shareSection = document.getElementById('share-section');
 
-        // Ukryj głosowanie jeśli z rankingu
         if (source === 'ranking') {
             voteBtn.style.display = 'none';
             document.getElementById('votes-count').innerHTML += ' <span style="color:#ccc;">(Tylko dla skanujących QR)</span>';
             shareSection.style.display = 'none';
             document.title = `Profil: ${owner.name} - Koszulka Challenge`;
         } else {
-            // Normalne głosowanie
             const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
             const votedKey = `voted_${id}_${deviceId}`;
             if (localStorage.getItem(votedKey)) {
@@ -95,7 +108,8 @@ function voteForOwner(id) {
     document.getElementById('vote-btn').disabled = true;
     document.getElementById('vote-btn').textContent = 'Dzięki za głos!';
     document.getElementById('share-section').style.display = 'block';
-    location.reload(); // Refresh dla update
+    confettiExplosion();  // Nowe: confetti efekt
+    location.reload();
 }
 
 function generateDeviceId() {
