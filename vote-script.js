@@ -42,9 +42,16 @@ function loadOwner(id) {
             img.style.display = 'block';
         }
 
-        // Prosty link do TikTok zamiast embed (oEmbed wymaga API key)
-        document.getElementById('tiktok-video').innerHTML = `<a href="${owner.tiktokLink}" target="_blank" style="color:#fff; text-decoration:underline;">Obejrzyj profil na TikTok</a>`;
+        // Stylowy przycisk TikTok z ikoną
+        document.getElementById('tiktok-video').innerHTML = `<a href="${owner.tiktokLink}" target="_blank" class="tiktok-btn"><i class="fab fa-tiktok"></i> Obejrzyj na TikTok</a>`;
         document.getElementById('tiktok-video').style.display = 'block';
+
+        // Nowe: Bio właściciela
+        const bioSection = document.getElementById('owner-bio');
+        if (owner.bio && owner.bio.trim()) {
+            bioSection.innerHTML = `<i class="fas fa-quote-left" style="color:#ccc; margin-right:0.5rem;"></i><span>${owner.bio}</span>`;
+            bioSection.style.display = 'block';
+        }
 
         // Pobierz sumę wszystkich votes dla %
         db.ref('owners').once('value').then(snap => {
