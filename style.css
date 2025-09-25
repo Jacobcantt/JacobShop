@@ -209,6 +209,22 @@ form button {
 .ranking-item img {
     border: 1px solid #333;
 }
+.ranking-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+    border: 2px solid #333;
+}
+
+.no-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+}
 @media (max-width: 768px) {
     nav {
         flex-direction: column;
@@ -219,5 +235,6 @@ form button {
     }
     
 }
+
 
 
