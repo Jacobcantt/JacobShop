@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Koszulka Challenge</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1><a href="/">Koszulka Challenge - Admin</a></h1>
+        </nav>
+    </header>
+
+    <main>
+        <section id="login" style="display:block;">
+            <h2>Login Admin</h2>
+            <input type="password" id="admin-password" placeholder="Hasło">
+            <button onclick="loginAdmin()">Zaloguj</button>
+        </section>
+
+        <section id="admin-panel" style="display:none;">
+            <h2>Dodaj Właściciela</h2>
+            <form id="add-owner-form">
+                <input type="text" id="owner-name" placeholder="Imię/Nick">
+                <input type="text" id="tiktok-handle" placeholder="TikTok Handle (@example)">
+                <input type="url" id="tiktok-link" placeholder="Link do TikTok">
+                <input type="file" id="photo-upload" accept="image/*">
+                <button type="submit">Dodaj i Generuj QR</button>
+            </form>
+            <div id="qr-section" style="display:none;">
+                <canvas id="qr-canvas"></canvas>
+                <button onclick="downloadQR()">Pobierz QR</button>
+                <input type="text" id="vote-link" readonly placeholder="Link do głosowania">
+                <button onclick="copyLink()">Kopiuj Link</button>
+            </div>
+            <h3>Wszystkie Właściciele</h3>
+            <div id="owners-list"></div>
+        </section>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="admin-script.js"></script>
+</body>
+</html>

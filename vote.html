@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Głosuj na Właściciela</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1><a href="/">Koszulka Challenge</a></h1>
+        </nav>
+    </header>
+
+    <main>
+        <section id="vote-section">
+            <div id="owner-info">
+                <img id="owner-photo" src="" alt="Zdjęcie właściciela" style="display:none;">
+                <h2 id="owner-name"></h2>
+                <p id="owner-tiktok">@</p>
+                <div id="tiktok-video" style="display:none;"></div>
+                <div class="progress-bar">
+                    <div id="progress-fill"></div>
+                </div>
+                <p id="votes-count">0 głosów</p>
+                <button id="vote-btn" class="vote-button">Głosuj!</button>
+                <div id="share-section" style="display:none;">
+                    <h3>Podziel się!</h3>
+                    <button onclick="shareTikTok()">TikTok</button>
+                    <button onclick="shareTwitter()">Twitter</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <script src="vote-script.js"></script>
+</body>
+</html>
