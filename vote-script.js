@@ -12,11 +12,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Reszta bez zmian (urlParams, loadOwner() itd.)
 const urlParams = new URLSearchParams(window.location.search);
 const ownerId = urlParams.get('owner');
-
-const db = firebase.database();
 
 if (ownerId) {
     loadOwner(ownerId);
@@ -39,14 +36,9 @@ function loadOwner(id) {
             img.style.display = 'block';
         }
 
-        // Embed TikTok video (ostatnie via API - uprość, jeśli nie)
-        fetch(`https://open.tiktokapis.com/v2/oembed?url=${owner.tiktokLink}?rand=${Math.random()}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.data && data.data.html) {
-                    document.getElementById('tiktok-video').innerHTML = data.data.html;
-                }
-            });
+        // Prosty link do TikTok zamiast embed (oEmbed wymaga API key)
+        document.getElementById('tiktok-video').innerHTML = `<a href="${owner.tiktokLink}" target="_blank" style="color:#fff; text-decoration:underline;">Obejrzyj profil na TikTok</a>`;
+        document.getElementById('tiktok-video').style.display = 'block';
 
         const progressFill = document.getElementById('progress-fill');
         // Pobierz max votes dla %
@@ -57,7 +49,8 @@ function loadOwner(id) {
         });
 
         const voteBtn = document.getElementById('vote-btn');
-        const votedKey = `voted_${id}_${localStorage.getItem('deviceId') || 'unknown'}`;
+        const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
+        const votedKey = `voted_${id}_${deviceId}`;
         if (localStorage.getItem(votedKey)) {
             voteBtn.disabled = true;
             voteBtn.textContent = 'Już zagłosowałeś!';
@@ -72,7 +65,8 @@ function voteForOwner(id) {
     updates[`owners/${id}/votes`] = firebase.database.ServerValue.increment(1);
     db.ref().update(updates);
 
-    localStorage.setItem(`voted_${id}_${localStorage.getItem('deviceId') || generateDeviceId()}`, 'true');
+    const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
+    localStorage.setItem(`voted_${id}_${deviceId}`, 'true');
     document.getElementById('vote-btn').disabled = true;
     document.getElementById('vote-btn').textContent = 'Dzięki za głos!';
     document.getElementById('share-section').style.display = 'block';
@@ -96,5 +90,4 @@ function shareTikTok() {
 function shareTwitter() {
     const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #KoszulkaChallenge! ${window.location.href}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
-
 }
