@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <header>
@@ -21,6 +20,7 @@
         <section id="login" style="display:block;">
             <h2>Login Admin</h2>
             <form id="login-form">
+                <input type="hidden" name="username" value="admin"> <!-- Fix accessibility -->
                 <input type="password" id="admin-password" name="admin-password" autocomplete="new-password" placeholder="Hasło">
                 <button type="button" onclick="loginAdmin()">Zaloguj</button>
             </form>
@@ -33,11 +33,10 @@
                 <input type="text" id="tiktok-handle" name="tiktok-handle" placeholder="TikTok Handle (@example)">
                 <input type="url" id="tiktok-link" name="tiktok-link" placeholder="Link do TikTok">
                 <input type="url" id="photo-url" name="photo-url" placeholder="Link do zdjęcia (np. z TikTok)">
-                <button type="submit">Dodaj i Generuj QR</button>
+                <button type="submit">Dodaj i Pokaż Link</button>
             </form>
             <div id="qr-section" style="display:none;">
-                <canvas id="qr-canvas"></canvas>
-                <button onclick="downloadQR()">Pobierz QR</button>
+                <p style="text-align:center; color:#ccc;">Link do głosowania (skopiuj i wygeneruj QR zewnętrznie):</p>
                 <input type="text" id="vote-link" readonly placeholder="Link do głosowania">
                 <button onclick="copyLink()">Kopiuj Link</button>
             </div>
