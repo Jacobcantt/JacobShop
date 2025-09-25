@@ -36,7 +36,7 @@ function addOwner(e) {
 
     const newOwnerRef = db.ref('owners').push();
     const ownerId = newOwnerRef.key;
-    const voteLink = `https://twoja-domena.com/vote.html?owner=${ownerId}`;
+    const voteLink = `https://jacobcantt.github.io/JacobShop/vote.html?owner=${ownerId}`;
 
     const updates = {
         name: name,
@@ -93,3 +93,4 @@ function loadOwners() {
         });
     });
 }
+
