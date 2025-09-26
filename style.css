@@ -393,7 +393,7 @@ form button:hover {
 #share-section button[onclick="shareScreenshot()"] {
     background: #222;
     color: #fff;
-    border: 1px solid #FFD700;  /* Złota rama */
+    border: 1px solid #FFD700;
     font-weight: 600;
 }
 
@@ -476,6 +476,7 @@ form button:hover {
 .top-2 .progress-bar div, .top-3 .progress-bar div {
     background: #C0C0C0;  /* Srebrny/brązowy pasek */
 }
+
 
 
 
