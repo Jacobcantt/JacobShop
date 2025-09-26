@@ -27,6 +27,40 @@ function confettiExplosion() {
     document.head.appendChild(script);
 }
 
+// Nowa funkcja: Zrzut ekranu i share
+function shareScreenshot() {
+    const element = document.getElementById('owner-info');
+    html2canvas(element, { 
+        backgroundColor: '#000',  // Czarne tło
+        scale: 2,  // Wyższa jakość
+        useCORS: true  // Dla zewnętrznych obrazów
+    }).then(canvas => {
+        canvas.toBlob((blob) => {
+            const file = new File([blob], 'vote-wear-screenshot.png', { type: 'image/png' });
+            const shareData = {
+                files: [file],
+                title: 'VoteWear - Mój głos!',
+                text: 'Właśnie zagłosowałem w #VoteWear! Sprawdź profil.'
+            };
+
+            if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
+                navigator.share(shareData).catch(err => console.log('Błąd share:', err));  // Natywny share na mobile
+            } else {
+                // Fallback: Download
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        }, 'image/png');
+    }).catch(err => {
+        console.error('Błąd screenshot:', err);
+        alert('Nie udało się zrobić zrzutu – spróbuj ponownie.');
+    });
+}
+
 // Check for deprecated storage (suppress warning)
 if (navigator.storage && navigator.storage.persist) {
     navigator.storage.persist().catch(() => {});  // Silent fail
