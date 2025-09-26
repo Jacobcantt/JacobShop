@@ -402,6 +402,7 @@ form button:hover {
     color: #000;
     transform: scale(1.05);
 }
+
 /* Responsywność dla mobile – powiększone zdjęcia, stackowane elementy */
 @media (max-width: 768px) {
     nav {
@@ -475,6 +476,7 @@ form button:hover {
 .top-2 .progress-bar div, .top-3 .progress-bar div {
     background: #C0C0C0;  /* Srebrny/brązowy pasek */
 }
+
 
 
 
