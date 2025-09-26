@@ -27,106 +27,140 @@ function confettiExplosion() {
     document.head.appendChild(script);
 }
 
-// Nowa funkcja: Custom grafika z canvas i share
+// Ulepszona funkcja: Custom grafika z canvas (ciemne tło, elegancki design)
 function shareScreenshot() {
     const name = document.getElementById('owner-name').textContent;
     const votes = document.getElementById('votes-count').textContent;
     const photoUrl = document.getElementById('owner-photo').src || '';  // URL zdjęcia
 
-    // Tworzenie canvas (400x600px, czarno-biały z złotymi akcentami)
+    // Canvas: 400x600px, ciemne tło
     const canvas = document.createElement('canvas');
     canvas.width = 400;
     canvas.height = 600;
     const ctx = canvas.getContext('2d');
 
-    // Tło czarne
-    ctx.fillStyle = '#000';
+    // Ciemne tło z gradientem (czarne do ciemnoszare)
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#000');
+    gradient.addColorStop(1, '#111');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Biała rama (lekko zaokrąglona)
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(20, 20, canvas.width - 40, canvas.height - 40);
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+    // Subtelna siatka/tekstura (cienie – opcjonalnie, dla elegancji)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+    }
 
-    // Zdjęcie profilowe (okrągłe, centrowane)
+    // Zdjęcie profilowe (okrągłe, z cieniem i ramką)
     if (photoUrl) {
         const img = new Image();
-        img.crossOrigin = 'anonymous';  // Dla zewnętrznych URL
+        img.crossOrigin = 'anonymous';
         img.onload = () => {
+            // Cień pod zdjęciem
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 5;
+
             // Okrągłe crop
             ctx.beginPath();
-            ctx.arc(200, 150, 100, 0, 2 * Math.PI);  // Środek: 200,150; promień 100
+            ctx.arc(200, 150, 110, 0, 2 * Math.PI);  // Większe koło
             ctx.clip();
-            ctx.drawImage(img, 100, 50, 200, 200);  // Crop do koła
+            ctx.drawImage(img, 90, 40, 220, 220);  // Crop do koła
             ctx.restore();
-            // Biała rama wokół zdjęcia
+
+            // Rama wokół zdjęcia (biała z cieniem)
             ctx.beginPath();
-            ctx.arc(200, 150, 100, 0, 2 * Math.PI);
+            ctx.arc(200, 150, 110, 0, 2 * Math.PI);
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 4;
+            ctx.lineWidth = 3;
             ctx.stroke();
+
+            // Reset cienia
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+
+            finalizeCanvas();
         };
         img.src = photoUrl;
     } else {
-        // Fallback: Placeholder
+        // Fallback placeholder (ciemny krąg z "?"
         ctx.fillStyle = '#333';
         ctx.beginPath();
-        ctx.arc(200, 150, 100, 0, 2 * Math.PI);
+        ctx.arc(200, 150, 110, 0, 2 * Math.PI);
         ctx.fill();
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 24px Inter';
+        ctx.font = 'bold 32px Inter';
         ctx.textAlign = 'center';
-        ctx.fillText('?', 200, 165);
+        ctx.fillText('?', 200, 170);
+        finalizeCanvas();
     }
 
-    // Nazwa właściciela (biały, bold, centrowany)
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 28px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText(name, 200, 280);
-
-    // Liczba głosów (szary tekst)
-    ctx.fillStyle = '#ccc';
-    ctx.font = '20px Inter';
-    ctx.fillText(votes, 200, 320);
-
-    // Napis "Dzięki za głos!" (złoty, italic)
-    ctx.fillStyle = '#FFD700';
-    ctx.font = 'italic 24px Inter';
-    ctx.fillText('Dzięki za głos!', 200, 380);
-
-    // Logo VoteWear na dole (małe)
-    const logoImg = new Image();
-    logoImg.crossOrigin = 'anonymous';
-    logoImg.onload = () => {
-        ctx.drawImage(logoImg, 160, 420, 80, 80);  // Małe logo
-        finalizeCanvas();
-    };
-    logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
-
     function finalizeCanvas() {
-        canvas.toBlob((blob) => {
-            const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
-            const shareData = {
-                files: [file],
-                title: 'VoteWear - Mój głos!',
-                text: `Właśnie zagłosowałem na ${name} w #VoteWear! ${votes}`
-            };
+        // Nazwa właściciela (biały, bold, centrowany)
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 32px Inter';  // Większy font
+        ctx.textAlign = 'center';
+        ctx.fillText(name, 200, 320);
 
-            if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
-                navigator.share(shareData).catch(err => console.log('Błąd share:', err));
-            } else {
-                // Fallback: Download
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = file.name;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-        }, 'image/png', 1.0);  // 100% jakość
+        // Liczba głosów (szary tekst, z ikoną)
+        ctx.fillStyle = '#ccc';
+        ctx.font = '24px Inter';
+        ctx.fillText('Głosy:', 200, 370);
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 28px Inter';
+        ctx.fillText(votes, 200, 410);
+
+        // Napis "Dzięki za głos!" (złoty, italic, z cieniem)
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+        ctx.shadowBlur = 5;
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'italic 28px Inter';
+        ctx.fillText('Dzięki za głos!', 200, 470);
+
+        // Logo VoteWear na dole (małe, centrowane)
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = () => {
+            ctx.drawImage(logoImg, 160, 500, 80, 80);  // Małe logo
+            ctx.shadowColor = 'transparent';  // Reset cienia
+            exportCanvas();
+        };
+        logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
+
+        function exportCanvas() {
+            canvas.toBlob((blob) => {
+                const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
+                const shareData = {
+                    files: [file],
+                    title: 'VoteWear - Mój głos!',
+                    text: `Właśnie zagłosowałem na ${name} w #VoteWear! ${votes}`
+                };
+
+                if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
+                    navigator.share(shareData).catch(err => console.log('Błąd share:', err));
+                } else {
+                    // Fallback: Download
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.name;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            }, 'image/png', 1.0);  // 100% jakość
+        }
     }
 }
 
