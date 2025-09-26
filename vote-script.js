@@ -27,24 +27,96 @@ function confettiExplosion() {
     document.head.appendChild(script);
 }
 
-// Nowa funkcja: Zrzut ekranu i share
+// Nowa funkcja: Custom grafika z canvas i share
 function shareScreenshot() {
-    const element = document.getElementById('owner-info');
-    html2canvas(element, { 
-        backgroundColor: '#000',  // Czarne tło
-        scale: 2,  // Wyższa jakość
-        useCORS: true  // Dla zewnętrznych obrazów
-    }).then(canvas => {
+    const name = document.getElementById('owner-name').textContent;
+    const votes = document.getElementById('votes-count').textContent;
+    const photoUrl = document.getElementById('owner-photo').src || '';  // URL zdjęcia
+
+    // Tworzenie canvas (400x600px, czarno-biały z złotymi akcentami)
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+
+    // Tło czarne
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Biała rama (lekko zaokrąglona)
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(20, 20, canvas.width - 40, canvas.height - 40);
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+    // Zdjęcie profilowe (okrągłe, centrowane)
+    if (photoUrl) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';  // Dla zewnętrznych URL
+        img.onload = () => {
+            // Okrągłe crop
+            ctx.beginPath();
+            ctx.arc(200, 150, 100, 0, 2 * Math.PI);  // Środek: 200,150; promień 100
+            ctx.clip();
+            ctx.drawImage(img, 100, 50, 200, 200);  // Crop do koła
+            ctx.restore();
+            // Biała rama wokół zdjęcia
+            ctx.beginPath();
+            ctx.arc(200, 150, 100, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+        };
+        img.src = photoUrl;
+    } else {
+        // Fallback: Placeholder
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.arc(200, 150, 100, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 24px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('?', 200, 165);
+    }
+
+    // Nazwa właściciela (biały, bold, centrowany)
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 28px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(name, 200, 280);
+
+    // Liczba głosów (szary tekst)
+    ctx.fillStyle = '#ccc';
+    ctx.font = '20px Inter';
+    ctx.fillText(votes, 200, 320);
+
+    // Napis "Dzięki za głos!" (złoty, italic)
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'italic 24px Inter';
+    ctx.fillText('Dzięki za głos!', 200, 380);
+
+    // Logo VoteWear na dole (małe)
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+    logoImg.onload = () => {
+        ctx.drawImage(logoImg, 160, 420, 80, 80);  // Małe logo
+        finalizeCanvas();
+    };
+    logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
+
+    function finalizeCanvas() {
         canvas.toBlob((blob) => {
-            const file = new File([blob], 'vote-wear-screenshot.png', { type: 'image/png' });
+            const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
             const shareData = {
                 files: [file],
                 title: 'VoteWear - Mój głos!',
-                text: 'Właśnie zagłosowałem w #VoteWear! Sprawdź profil.'
+                text: `Właśnie zagłosowałem na ${name} w #VoteWear! ${votes}`
             };
 
             if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
-                navigator.share(shareData).catch(err => console.log('Błąd share:', err));  // Natywny share na mobile
+                navigator.share(shareData).catch(err => console.log('Błąd share:', err));
             } else {
                 // Fallback: Download
                 const url = URL.createObjectURL(blob);
@@ -54,11 +126,8 @@ function shareScreenshot() {
                 a.click();
                 URL.revokeObjectURL(url);
             }
-        }, 'image/png');
-    }).catch(err => {
-        console.error('Błąd screenshot:', err);
-        alert('Nie udało się zrobić zrzutu – spróbuj ponownie.');
-    });
+        }, 'image/png', 1.0);  // 100% jakość
+    }
 }
 
 // Check for deprecated storage (suppress warning)
