@@ -29,12 +29,12 @@ function confettiExplosion() {
 
 // Check for deprecated storage (suppress warning)
 if (navigator.storage && navigator.storage.persist) {
-    navigator.storage.persist().catch(() => {});
+    navigator.storage.persist().catch(() => {});  // Silent fail
 }
 
 const urlParams = new URLSearchParams(window.location.search);
 const ownerId = urlParams.get('owner');
-const source = urlParams.get('source');
+const source = urlParams.get('source');  // 'ranking' ukrywa głosowanie
 
 if (ownerId) {
     loadOwner(ownerId);
@@ -84,7 +84,7 @@ function loadOwner(id) {
             voteBtn.style.display = 'none';
             document.getElementById('votes-count').innerHTML += ' <span style="color:#ccc;">(Tylko dla skanujących QR)</span>';
             shareSection.style.display = 'none';
-            document.title = `Profil: ${owner.name} - Koszulka Challenge`;
+            document.title = `Profil: ${owner.name} - VoteWear`;
         } else {
             const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
             const votedKey = `voted_${id}_${deviceId}`;
@@ -108,8 +108,24 @@ function voteForOwner(id) {
     document.getElementById('vote-btn').disabled = true;
     document.getElementById('vote-btn').textContent = 'Dzięki za głos!';
     document.getElementById('share-section').style.display = 'block';
-    confettiExplosion();  // Nowe: confetti efekt
-    location.reload();
+    confettiExplosion();  // Confetti trwa ~2s
+
+    // Dynamiczny update po 2s (bez reload)
+    setTimeout(() => {
+        // Pobierz nowe dane właściciela
+        db.ref(`owners/${id}`).once('value').then(snapshot => {
+            const owner = snapshot.val();
+            document.getElementById('votes-count').textContent = `${owner.votes} głosów`;
+
+            // Update progress
+            db.ref('owners').once('value').then(snap => {
+                let totalVotes = 0;
+                snap.forEach(child => { totalVotes += child.val().votes || 0; });
+                const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
+                document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
+            });
+        });
+    }, 2000);  // 2 sekundy po confetti
 }
 
 function generateDeviceId() {
@@ -122,11 +138,11 @@ function generateDeviceId() {
 }
 
 function shareTikTok() {
-    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #KoszulkaChallenge! Sprawdź: ${window.location.href}`;
+    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #VoteWear! Sprawdź: ${window.location.href}`;
     window.open(`https://www.tiktok.com/share?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
 
 function shareTwitter() {
-    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #KoszulkaChallenge! ${window.location.href}`;
+    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #VoteWear! ${window.location.href}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
