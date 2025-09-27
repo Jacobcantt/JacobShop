@@ -61,16 +61,8 @@ function loadRanking() {
             ownerCount++;
         });
         console.log('Suma głosów w rankingu:', totalVotes);  // Debug
-
-        // NOWE: Oblicz globalne miejsca dla wszystkich właścicieli
-        const sortedOwners = [...owners].sort((a, b) => b.votes - a.votes);
-        const globalPlaces = {};
-        sortedOwners.forEach((owner, index) => {
-            globalPlaces[owner.id] = index + 1;
-        });
-
-        // Przekaż globalPlaces do displayRanking
-        displayRanking(owners.slice(0, 10), totalVotes, globalPlaces);
+        owners.sort((a, b) => b.votes - a.votes);
+        displayRanking(owners.slice(0, 10), totalVotes);
 
         // Aktualizuj statystyki
         document.getElementById('total-owners').textContent = ownerCount;
@@ -84,25 +76,23 @@ function loadRanking() {
             let filteredTotal = 0;
             filtered.forEach(o => filteredTotal += o.votes || 0);
             console.log('Suma głosów w search:', filteredTotal);  // Debug
-            // Użyj tych samych globalPlaces dla filtrowanych
-            displayRanking(filtered.slice(0, 10), filteredTotal, globalPlaces);
+            displayRanking(filtered.slice(0, 10), filteredTotal);
         });
     });
 }
 
-function displayRanking(owners, totalVotes, globalPlaces) {  // NOWE: parametr globalPlaces
+function displayRanking(owners, totalVotes) {
     const rankingList = document.getElementById('ranking-list');
     rankingList.innerHTML = '';
     if (owners.length === 0) {
         rankingList.innerHTML = '<p style="text-align:center; color:#ccc;">Brak właścicieli – dodaj w adminie!</p>';
         return;
     }
-    owners.forEach((owner) => {  // NOWE: usuń index z forEach
-        const globalPlace = globalPlaces[owner.id];  // Globalne miejsce
-        const isTop1 = globalPlace === 1;
-        const isTop2 = globalPlace === 2;
-        const isTop3 = globalPlace === 3;
+    owners.forEach((owner, index) => {
         const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : (owners.length > 0 ? 100 : 0);
+        const isTop1 = index === 0;
+        const isTop2 = index === 1;
+        const isTop3 = index === 2;
         const item = document.createElement('div');
         item.className = `ranking-item ${isTop1 ? 'top-1' : ''} ${isTop2 ? 'top-2' : ''} ${isTop3 ? 'top-3' : ''}`;
         const photoHtml = owner.photoUrl ? `<img src="${owner.photoUrl}" alt="Profil ${owner.name}" class="ranking-photo">` : '<div class="no-photo">?</div>';
@@ -112,7 +102,7 @@ function displayRanking(owners, totalVotes, globalPlaces) {  // NOWE: parametr g
             <div style="display:flex; align-items:center;">
                 ${photoHtml}
                 <div>
-                    <h3>${globalPlace}${crown}. ${owner.name}</h3>  <!-- NOWE: Użyj globalPlace -->
+                    <h3>${index + 1}${crown}. ${owner.name}</h3>
                     <p>${owner.tiktokHandle} | ${owner.votes} głosów ${voteIcon}</p>
                     <a href="vote.html?owner=${owner.id}&source=ranking" style="color: #ccc;">Zobacz profil</a>
                 </div>
@@ -126,3 +116,4 @@ function displayRanking(owners, totalVotes, globalPlaces) {  // NOWE: parametr g
 }
 
 loadRanking();
+

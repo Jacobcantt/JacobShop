@@ -179,50 +179,68 @@ async function shareScreenshot() {
         ctx.fillText('Głosy:', 540, 900);
 
         // Liczba głosów (złoty, bold) + ikona
+        ctx.fillStyle = '#FFD700'; // Złoty
+        ctx.font = 'bold 65px Arial, sans-serif';
+        ctx.fillText(votes.toString(), 540, 1000);
+        ctx.font = 'bold 50px Arial, sans-serif'; // Mniejsza ikona
+        ctx.fillText('⭐', 650, 1000); // Bliżej liczby
+
+        // Miejsce + procent (subtelny, szary, italic)
+        if (rankData.percent > 0 || rankData.place !== '-') {
+            ctx.fillStyle = '#ccc';
+            ctx.font = 'italic 35px Arial, sans-serif'; // Mniejszy, by nie nakładać
+            const rankText = `Miejsce ${rankData.place} (${rankData.percent}%) w rankingu`;
+            ctx.fillText(rankText, 540, 1100);
+        }
+
+        // Napis "Dzięki za oddany głos!" (złoty, italic, cień – niżej, mniejszy)
         ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 3;
-        ctx.shadowOffsetY = 1;
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.4)';
+        ctx.shadowBlur = 5;
         ctx.fillStyle = '#FFD700';
-        ctx.font = 'bold 80px Arial, sans-serif';
-        ctx.fillText(votes, 540, 1000);
+        ctx.font = 'italic 50px Arial, sans-serif'; // Mniejszy, by nie ciąć
+        ctx.fillText('Dzięki za oddany głos!', 540, 1400); // Większy odstęp
         ctx.restore();
 
-        // Miejsce w rankingu (biały, bold)
+        // Hashtag #JacobcanVote (biały, bold, niżej)
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 50px Arial, sans-serif';
-        ctx.fillText(`${rankData.place} miejsce`, 540, 1150);
+        ctx.font = 'bold 35px Arial, sans-serif';
+        ctx.fillText('#JacobcanVote', 540, 1800);
 
-        // Procent (złoty)
-        ctx.fillStyle = '#FFD700';
-        ctx.font = 'bold 60px Arial, sans-serif';
-        ctx.fillText(`${rankData.percent}%`, 540, 1250);
+        // Logo (async, ale nie blokuj export – mniejsze, niżej)
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = () => {
+            ctx.drawImage(logoImg, 510, 1850, 60, 60); // Mniejsze, centrowane niżej
+            exportCanvas();
+        };
+        logoImg.onerror = () => {
+            exportCanvas(); // Zawsze export
+        };
+        logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
 
-        // Hashtag (biały)
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 40px Arial, sans-serif';
-        ctx.fillText('#JacobcanVote', 540, 1400);
+        function exportCanvas() {
+            canvas.toBlob((blob) => {
+                const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
+                const shareData = {
+                    files: [file],
+                    title: 'JacobcanVote - Mój głos!',
+                    text: `Właśnie zagłosowałem na ${name} w #JacobcanVote! ${votes} głosów`
+                };
 
-        // Link (szary, mniejszy)
-        ctx.fillStyle = '#ccc';
-        ctx.font = 'italic 30px Arial, sans-serif';
-        ctx.fillText(window.location.origin + window.location.pathname, 540, 1550);
-
-        // Pasek postępu (biały z gradientem)
-        ctx.fillStyle = '#333';
-        ctx.fillRect(240, 1650, 600, 20);
-        ctx.fillStyle = '#FFD700';
-        ctx.fillRect(240, 1650, (rankData.percent / 100) * 600, 20);
-
-        // Konwersja do blob i download
-        canvas.toBlob((blob) => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${name.replace(/\s+/g, '_')}_vote_share.png`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }, 'image/png', 1.0);
+                if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
+                    navigator.share(shareData).catch(err => console.log('Błąd share:', err));
+                } else {
+                    // Fallback: Download
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = file.name;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }
+            }, 'image/png', 1.0);
+        }
     }
 }
 
@@ -255,16 +273,6 @@ function loadOwner(id) {
             img.src = owner.photoUrl;
             img.style.display = 'block';
         }
-
-        // NOWE: Event na flip zdjęcia po załadowaniu
-        document.getElementById('photo-container').addEventListener('click', () => {
-            const flipCard = document.querySelector('.flip-card');
-            flipCard.classList.toggle('flipped');
-            // Auto-reset po 2s
-            setTimeout(() => {
-                flipCard.classList.remove('flipped');
-            }, 2000);
-        });
 
         // Stylowy przycisk TikTok z ikoną
         document.getElementById('tiktok-video').innerHTML = `<a href="${owner.tiktokLink}" target="_blank" class="tiktok-btn"><i class="fab fa-tiktok"></i> Obejrzyj na TikTok</a>`;
@@ -303,12 +311,8 @@ function loadOwner(id) {
         const shareSection = document.getElementById('share-section');
 
         if (source === 'ranking') {
-            // NOWE: Przycisk disabled z alertem zamiast ukrywania
-            voteBtn.disabled = true;
-            voteBtn.textContent = 'Głosuj!';
-            voteBtn.addEventListener('click', () => {
-                alert('Głos możesz oddać tylko po przez zeskanowanie kodu QR z koszulki właściciela');
-            });
+            voteBtn.style.display = 'none';
+            document.getElementById('votes-count').innerHTML += ' <span style="color:#ccc;">(Tylko dla skanujących QR)</span>';
             shareSection.style.display = 'none';
             document.title = `Profil: ${owner.name} - JacobcanVote`;
         } else {
@@ -385,3 +389,4 @@ function shareTwitter() {
     const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #JacobcanVote! ${window.location.href}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
+
