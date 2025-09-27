@@ -3,59 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil - JacobcanVote</title>
+    <title>Profil Właściciela - JacobcanVote</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div id="particles-js"></div>
     <header>
         <nav>
-            <div style="display:flex; align-items:center;">
-                <img src="https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a" alt="JacobcanVote Logo" class="logo">
-                <h1><a href="index.html">JacobcanVote</a></h1>
-            </div>
+            <h1 id="animated-title">JacobcanVote</h1>
+            <ul>
+                <li><a href="index.html"><i class="fas fa-chart-bar"></i> Ranking</a></li>
+                <li><a href="admin.html"><i class="fas fa-user-shield"></i> Admin</a></li>
+            </ul>
         </nav>
     </header>
 
     <main>
         <section id="vote-section">
-            <div id="owner-info">
-                <img id="owner-photo" src="" alt="Zdjęcie właściciela" style="display:none;">
-                <h2 id="owner-name"></h2>
-                <p id="owner-tiktok">@</p>
-                <div id="tiktok-video" style="display:none;"></div>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
+            <h2 id="owner-name"></h2>
+            <p id="owner-tiktok"></p>
+            <div id="photo-container" class="flip-container" style="perspective: 1000px; margin: 1rem auto; display: block;">
+                <!-- NOWE: Struktura flip dla zdjęcia -->
+                <div class="flip-card">
+                    <div class="front">
+                        <img id="owner-photo" src="" alt="Profil właściciela" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 2px solid #fff;">
+                    </div>
+                    <div class="back">
+                        <img src="logo-jacobcan.png" alt="Jacobcan Logo" style="width: 150px; height: 150px; border-radius: 50%; object-fit: contain; background: #000;">
+                        <!-- Fallback jeśli brak obrazka: <div style="display: flex; align-items: center; justify-content: center; width: 150px; height: 150px; background: #333; color: #FFD700; font-size: 24px; font-weight: bold; border-radius: 50%;">Jacobcan</div> -->
+                    </div>
                 </div>
-                <p id="votes-count">0 głosów</p>
-                <button id="vote-btn" class="vote-button">Głosuj!</button>
-                <div id="owner-bio" class="bio-section" style="display:none;"></div>
-                <div id="share-section" style="display:none;">
-                    <h3>Podziel się!</h3>
-                    <button onclick="shareScreenshot()">📸 Udostępnij grafikę</button>
-                    <button onclick="shareTikTok()">TikTok</button>
-                    <button onclick="shareTwitter()">Twitter</button>
-                </div>
+            </div>
+            <p id="votes-count">0 głosów</p>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <button id="vote-btn" class="vote-button">Głosuj!</button>
+            <div id="tiktok-video"></div>
+            <div id="owner-bio" class="bio-section" style="display: none;"></div>
+            <div id="share-section" style="display: none;">
+                <h3>Podziel się!</h3>
+                <button onclick="shareScreenshot()">📸 Udostępnij grafikę</button>
+                <button onclick="shareTikTok()">TikTok</button>
+                <button onclick="shareTwitter()">Twitter</button>
             </div>
         </section>
     </main>
 
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="vote-script.js"></script>
-    <script>
-        // Particles dla profilu
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof particlesJS !== 'undefined') {
-                particlesJS('particles-js', {
-                    particles: { number: { value: 40 }, color: { value: '#ffffff' }, opacity: { value: 0.25 }, size: { value: 2 } },
-                    interactivity: { events: { onhover: { mode: 'repulse' } } }
-                });
-            }
-        });
-    </script>
 </body>
 </html>
-
