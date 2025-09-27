@@ -61,7 +61,7 @@ function loadRanking() {
             ownerCount++;
         });
         console.log('Suma głosów w rankingu:', totalVotes);  // Debug
-        owners.sort((a, b) => b.votes - a.votes);
+
         displayRanking(owners.slice(0, 10), totalVotes);
 
         // Aktualizuj statystyki
