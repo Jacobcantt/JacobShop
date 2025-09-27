@@ -62,15 +62,17 @@ function loadRanking() {
         });
         console.log('Suma głosów w rankingu:', totalVotes);  // Debug
 
-        // POPRAWKA: Oblicz globalne miejsca dla wszystkich właścicieli (raz, dla wyszukiwania)
-        const sortedOwners = [...owners].sort((a, b) => b.votes - a.votes);
+        // POPRAWKA: Sortuj owners po głosach (descending) przed slice i globalPlaces
+        const sortedOwners = [...owners].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+
+        // POPRAWKA: Oblicz globalne miejsca na podstawie sortedOwners
         const globalPlaces = {};
         sortedOwners.forEach((owner, index) => {
             globalPlaces[owner.id] = index + 1;
         });
 
-        // Przekaż globalPlaces do displayRanking (dla pełnego rankingu)
-        displayRanking(owners.slice(0, 10), totalVotes, globalPlaces);
+        // Przekaż sortedOwners.slice(0,10) do displayRanking
+        displayRanking(sortedOwners.slice(0, 10), totalVotes, globalPlaces);
 
         // Aktualizuj statystyki
         document.getElementById('total-owners').textContent = ownerCount;
@@ -78,28 +80,30 @@ function loadRanking() {
 
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
-            const filtered = owners.filter(o => 
+            let filtered = owners.filter(o => 
                 o.name.toLowerCase().includes(query) || o.tiktokHandle.toLowerCase().includes(query)
             );
             let filteredTotal = 0;
             filtered.forEach(o => filteredTotal += o.votes || 0);
             console.log('Suma głosów w search:', filteredTotal);  // Debug
-            // POPRAWKA: Użyj tej samej globalPlaces dla filtrowanych wyników
+
+            // POPRAWKA: Sortuj filtered po głosach przed slice (wyniki w kolejności od top)
+            filtered = filtered.sort((a, b) => (b.votes || 0) - (a.votes || 0));
             displayRanking(filtered.slice(0, 10), filteredTotal, globalPlaces);
         });
     });
 }
 
-function displayRanking(owners, totalVotes, globalPlaces) {  // POPRAWKA: Dodany parametr globalPlaces
+function displayRanking(owners, totalVotes, globalPlaces) {
     const rankingList = document.getElementById('ranking-list');
     rankingList.innerHTML = '';
     if (owners.length === 0) {
         rankingList.innerHTML = '<p style="text-align:center; color:#ccc;">Brak właścicieli – dodaj w adminie!</p>';
         return;
     }
-    owners.forEach((owner) => {  // POPRAWKA: Usunięto index – nie używamy lokalnego indeksu
-        const globalPlace = globalPlaces[owner.id];  // POPRAWKA: Pobierz globalne miejsce
-        const isTop1 = globalPlace === 1;  // POPRAWKA: Style na podstawie globalPlace
+    owners.forEach((owner) => {
+        const globalPlace = globalPlaces[owner.id];
+        const isTop1 = globalPlace === 1;
         const isTop2 = globalPlace === 2;
         const isTop3 = globalPlace === 3;
         const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : (owners.length > 0 ? 100 : 0);
@@ -112,7 +116,7 @@ function displayRanking(owners, totalVotes, globalPlaces) {  // POPRAWKA: Dodany
             <div style="display:flex; align-items:center;">
                 ${photoHtml}
                 <div>
-                    <h3>${globalPlace}${crown}. ${owner.name}</h3>  <!-- POPRAWKA: Użyj globalPlace zamiast index + 1 -->
+                    <h3>${globalPlace}${crown}. ${owner.name}</h3>
                     <p>${owner.tiktokHandle} | ${owner.votes} głosów ${voteIcon}</p>
                     <a href="vote.html?owner=${owner.id}&source=ranking" style="color: #ccc;">Zobacz profil</a>
                 </div>
