@@ -223,7 +223,7 @@ h2 {
     display: block;
 }
 
-.vote-button:hover:not(:disabled) {  /* POPRAWKA: Hover tylko jeśli nie disabled */
+.vote-button:hover {
     transform: scale(1.05);
 }
 
@@ -231,7 +231,6 @@ h2 {
     background: #666;
     cursor: not-allowed;
     transform: none;
-    opacity: 0.6;  /* POPRAWKA: Widoczny, ale przyciemniony */
 }
 
 #owner-photo {
@@ -402,15 +401,6 @@ form button:hover {
     background: #FFD700;
     color: #000;
     transform: scale(1.05);
-}
-
-/* POPRAWKA: Wyśrodkowanie TikTok Handle w profilu */
-#owner-tiktok {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #ccc;
-    margin: 0.5rem 0;
-    font-weight: 500;
 }
 
 /* Responsywność dla mobile – powiększone zdjęcia, stackowane elementy */
