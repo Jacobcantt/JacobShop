@@ -27,7 +27,7 @@ function confettiExplosion() {
     document.head.appendChild(script);
 }
 
-// Ulepszona funkcja: Async canvas z await na img i DB
+// Ulepszona funkcja: Async canvas z await na img i DB – teraz z udostępnianiem
 async function shareScreenshot() {
     const name = document.getElementById('owner-name').textContent;
     const votesElement = document.getElementById('votes-count');
@@ -214,15 +214,36 @@ async function shareScreenshot() {
         ctx.fillStyle = '#FFD700';
         ctx.fillRect(240, 1650, (rankData.percent / 100) * 600, 20);
 
-        // Konwersja do blob i download
+        // POPRAWKA: Udostępnianie zamiast tylko pobrania
+        const filename = `${name.replace(/\s+/g, '_')}_vote_share.png`;
         canvas.toBlob((blob) => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${name.replace(/\s+/g, '_')}_vote_share.png`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const file = new File([blob], filename, { type: 'image/png' });
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                // Native share dialog (mobile/HTTPS)
+                navigator.share({
+                    title: `Głos na ${name} w #JacobcanVote!`,
+                    text: `Sprawdź mój głos na ${name}!`,
+                    files: [file]
+                }).catch(err => {
+                    console.error('Błąd share:', err);
+                    // Fallback: download
+                    downloadFallback(blob, filename);
+                });
+            } else {
+                // Fallback: download na desktop/nieobsługiwane
+                downloadFallback(blob, filename);
+            }
         }, 'image/png', 1.0);
+    }
+
+    // Fallback funkcja do pobrania
+    function downloadFallback(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
     }
 }
 
@@ -293,9 +314,9 @@ function loadOwner(id) {
         const shareSection = document.getElementById('share-section');
 
         if (source === 'ranking') {
-            // POPRAWKA: Przycisk disabled z alertem na click (zamiast ukrywania lub napisu)
+            // POPRAWKA: Przycisk disabled z alertem na click (tekst "Głosuj!" pozostaje)
             voteBtn.disabled = true;
-            voteBtn.textContent = 'Głosuj!';  // Zachowaj tekst przycisku
+            voteBtn.textContent = 'Głosuj!';
             voteBtn.addEventListener('click', () => {
                 alert('Głos możesz oddać tylko po przez zeskanowanie kodu QR z koszulki właściciela');
             });
