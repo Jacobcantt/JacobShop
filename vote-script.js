@@ -202,10 +202,10 @@ async function shareScreenshot() {
         ctx.fillText('Dzięki za oddany głos!', 540, 1400); // Większy odstęp
         ctx.restore();
 
-        // Hashtag #JacobcanVote (biały, bold, niżej)
+        // Hashtag #VoteWear (biały, bold, niżej)
         ctx.fillStyle = '#fff';
         ctx.font = 'bold 35px Arial, sans-serif';
-        ctx.fillText('#JacobcanVote', 540, 1800);
+        ctx.fillText('#VoteWear', 540, 1800);
 
         // Logo (async, ale nie blokuj export – mniejsze, niżej)
         const logoImg = new Image();
@@ -224,8 +224,8 @@ async function shareScreenshot() {
                 const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
                 const shareData = {
                     files: [file],
-                    title: 'JacobcanVote - Mój głos!',
-                    text: `Właśnie zagłosowałem na ${name} w #JacobcanVote! ${votes} głosów`
+                    title: 'VoteWear - Mój głos!',
+                    text: `Właśnie zagłosowałem na ${name} w #VoteWear! ${votes} głosów`
                 };
 
                 if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
@@ -314,7 +314,7 @@ function loadOwner(id) {
             voteBtn.style.display = 'none';
             document.getElementById('votes-count').innerHTML += ' <span style="color:#ccc;">(Tylko dla skanujących QR)</span>';
             shareSection.style.display = 'none';
-            document.title = `Profil: ${owner.name} - JacobcanVote`;
+            document.title = `Profil: ${owner.name} - VoteWear`;
         } else {
             const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
             const votedKey = `voted_${id}_${deviceId}`;
@@ -381,12 +381,11 @@ function generateDeviceId() {
 }
 
 function shareTikTok() {
-    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #JacobcanVote! Sprawdź: ${window.location.href}`;
+    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #VoteWear! Sprawdź: ${window.location.href}`;
     window.open(`https://www.tiktok.com/share?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
 
 function shareTwitter() {
-    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #JacobcanVote! ${window.location.href}`;
+    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #VoteWear! ${window.location.href}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
-
