@@ -31,7 +31,8 @@ function confettiExplosion() {
 async function shareScreenshot() {
     const name = document.getElementById('owner-name').textContent;
     const votesElement = document.getElementById('votes-count');
-    const votes = votesElement.textContent.replace(' głosów', '').trim(); // Czysta liczba, trim na safety
+    const votes = parseInt(votesElement.textContent.replace(' głosów', '').trim()); // Liczba jako int
+    const ownerId = new URLSearchParams(window.location.search).get('owner'); // Pobierz ID ownera z URL
     const photoUrl = document.getElementById('owner-photo').src || '';
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
@@ -121,27 +122,37 @@ async function shareScreenshot() {
         ctx.restore();
     }
 
-    // Promise dla progressPercent (z fallback z data-attr)
-    const loadProgressPromise = new Promise((resolve) => {
+    // Promise dla ranku i procentu (z fallback z data-attr, plus obliczanie miejsca)
+    const loadRankPromise = new Promise((resolve) => {
         const fallbackPercent = parseInt(votesElement.getAttribute('data-percent') || 0);
         if (fallbackPercent >= 0) {
-            resolve(fallbackPercent);
+            // Jeśli fallback, załóż miejsce na podstawie votes (uproszczone, ale szybkie)
+            resolve({ place: '-', percent: fallbackPercent });
             return;
         }
-        // Jeśli brak fallback, pobierz z DB
+        // Pobierz z DB i oblicz pełne dane
         db.ref('owners').once('value').then(snap => {
+            let owners = [];
             let totalVotes = 0;
-            snap.forEach(child => { totalVotes += child.val().votes || 0; });
-            const percent = totalVotes > 0 ? Math.round((parseInt(votes) / totalVotes) * 100) : 0;
-            resolve(percent);
+            snap.forEach(child => {
+                const owner = child.val();
+                owners.push({ id: child.key, votes: owner.votes || 0 });
+                totalVotes += owner.votes || 0;
+            });
+            // Sortuj po votes descending
+            owners.sort((a, b) => b.votes - a.votes);
+            // Znajdź miejsce current ownera
+            const place = owners.findIndex(o => o.id === ownerId) + 1;
+            const percent = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
+            resolve({ place: place >= 0 ? place : '-', percent });
         }).catch(err => {
-            resolve(0); // Fallback 0
+            resolve({ place: '-', percent: 0 }); // Fallback
         });
     });
 
     // Await oba Promise
-    await Promise.all([loadImagePromise, loadProgressPromise]);
-    const progressPercent = await loadProgressPromise;
+    await Promise.all([loadImagePromise, loadRankPromise]);
+    const rankData = await loadRankPromise;
 
     // Teraz finalizeCanvas (synchroniczne, po wszystkich awaits)
     finalizeCanvas();
@@ -169,15 +180,16 @@ async function shareScreenshot() {
         // Liczba głosów (złoty, bold) + ikona
         ctx.fillStyle = '#FFD700'; // Złoty
         ctx.font = 'bold 65px Arial, sans-serif';
-        ctx.fillText(votes, 540, 1000);
+        ctx.fillText(votes.toString(), 540, 1000);
         ctx.font = 'bold 50px Arial, sans-serif'; // Mniejsza ikona
         ctx.fillText('⭐', 650, 1000); // Bliżej liczby
 
-        // Procentowy udział (subtelny, szary, italic)
-        if (progressPercent > 0) {
+        // Miejsce + procent (subtelny, szary, italic)
+        if (rankData.percent > 0 || rankData.place !== '-') {
             ctx.fillStyle = '#ccc';
             ctx.font = 'italic 35px Arial, sans-serif'; // Mniejszy, by nie nakładać
-            ctx.fillText(`${progressPercent}% w rankingu`, 540, 1100);
+            const rankText = `Miejsce ${rankData.place} (${rankData.percent}%) w rankingu`;
+            ctx.fillText(rankText, 540, 1100);
         }
 
         // Napis "Dzięki za oddany głos!" (złoty, italic, cień – niżej, mniejszy)
