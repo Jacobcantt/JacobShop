@@ -179,68 +179,50 @@ async function shareScreenshot() {
         ctx.fillText('Głosy:', 540, 900);
 
         // Liczba głosów (złoty, bold) + ikona
-        ctx.fillStyle = '#FFD700'; // Złoty
-        ctx.font = 'bold 65px Arial, sans-serif';
-        ctx.fillText(votes.toString(), 540, 1000);
-        ctx.font = 'bold 50px Arial, sans-serif'; // Mniejsza ikona
-        ctx.fillText('⭐', 650, 1000); // Bliżej liczby
-
-        // Miejsce + procent (subtelny, szary, italic)
-        if (rankData.percent > 0 || rankData.place !== '-') {
-            ctx.fillStyle = '#ccc';
-            ctx.font = 'italic 35px Arial, sans-serif'; // Mniejszy, by nie nakładać
-            const rankText = `Miejsce ${rankData.place} (${rankData.percent}%) w rankingu`;
-            ctx.fillText(rankText, 540, 1100);
-        }
-
-        // Napis "Dzięki za oddany głos!" (złoty, italic, cień – niżej, mniejszy)
         ctx.save();
-        ctx.shadowColor = 'rgba(255, 215, 0, 0.4)';
-        ctx.shadowBlur = 5;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetY = 1;
         ctx.fillStyle = '#FFD700';
-        ctx.font = 'italic 50px Arial, sans-serif'; // Mniejszy, by nie ciąć
-        ctx.fillText('Dzięki za oddany głos!', 540, 1400); // Większy odstęp
+        ctx.font = 'bold 80px Arial, sans-serif';
+        ctx.fillText(votes, 540, 1000);
         ctx.restore();
 
-        // Hashtag #VoteWear (biały, bold, niżej)
+        // Miejsce w rankingu (biały, bold)
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 35px Arial, sans-serif';
-        ctx.fillText('#VoteWear', 540, 1800);
+        ctx.font = 'bold 50px Arial, sans-serif';
+        ctx.fillText(`${rankData.place} miejsce`, 540, 1150);
 
-        // Logo (async, ale nie blokuj export – mniejsze, niżej)
-        const logoImg = new Image();
-        logoImg.crossOrigin = 'anonymous';
-        logoImg.onload = () => {
-            ctx.drawImage(logoImg, 510, 1850, 60, 60); // Mniejsze, centrowane niżej
-            exportCanvas();
-        };
-        logoImg.onerror = () => {
-            exportCanvas(); // Zawsze export
-        };
-        logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
+        // Procent (złoty)
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'bold 60px Arial, sans-serif';
+        ctx.fillText(`${rankData.percent}%`, 540, 1250);
 
-        function exportCanvas() {
-            canvas.toBlob((blob) => {
-                const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
-                const shareData = {
-                    files: [file],
-                    title: 'VoteWear - Mój głos!',
-                    text: `Właśnie zagłosowałem na ${name} w #VoteWear! ${votes} głosów`
-                };
+        // Hashtag (biały)
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 40px Arial, sans-serif';
+        ctx.fillText('#JacobcanVote', 540, 1400);
 
-                if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
-                    navigator.share(shareData).catch(err => console.log('Błąd share:', err));
-                } else {
-                    // Fallback: Download
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = file.name;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                }
-            }, 'image/png', 1.0);
-        }
+        // Link (szary, mniejszy)
+        ctx.fillStyle = '#ccc';
+        ctx.font = 'italic 30px Arial, sans-serif';
+        ctx.fillText(window.location.origin + window.location.pathname, 540, 1550);
+
+        // Pasek postępu (biały z gradientem)
+        ctx.fillStyle = '#333';
+        ctx.fillRect(240, 1650, 600, 20);
+        ctx.fillStyle = '#FFD700';
+        ctx.fillRect(240, 1650, (rankData.percent / 100) * 600, 20);
+
+        // Konwersja do blob i download
+        canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name.replace(/\s+/g, '_')}_vote_share.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }, 'image/png', 1.0);
     }
 }
 
@@ -311,10 +293,14 @@ function loadOwner(id) {
         const shareSection = document.getElementById('share-section');
 
         if (source === 'ranking') {
-            voteBtn.style.display = 'none';
-            document.getElementById('votes-count').innerHTML += ' <span style="color:#ccc;">(Tylko dla skanujących QR)</span>';
+            // POPRAWKA: Przycisk disabled z alertem na click (zamiast ukrywania lub napisu)
+            voteBtn.disabled = true;
+            voteBtn.textContent = 'Głosuj!';  // Zachowaj tekst przycisku
+            voteBtn.addEventListener('click', () => {
+                alert('Głos możesz oddać tylko po przez zeskanowanie kodu QR z koszulki właściciela');
+            });
             shareSection.style.display = 'none';
-            document.title = `Profil: ${owner.name} - VoteWear`;
+            document.title = `Profil: ${owner.name} - JacobcanVote`;
         } else {
             const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
             const votedKey = `voted_${id}_${deviceId}`;
@@ -381,11 +367,11 @@ function generateDeviceId() {
 }
 
 function shareTikTok() {
-    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #VoteWear! Sprawdź: ${window.location.href}`;
+    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #JacobcanVote! Sprawdź: ${window.location.href}`;
     window.open(`https://www.tiktok.com/share?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
 
 function shareTwitter() {
-    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #VoteWear! ${window.location.href}`;
+    const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #JacobcanVote! ${window.location.href}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
