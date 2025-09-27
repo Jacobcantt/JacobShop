@@ -223,6 +223,7 @@ h2 {
     display: block;
 }
 
+/* POPRAWKA: Hover tylko dla nie-disabled przycisku */
 .vote-button:hover:not(:disabled) {
     transform: scale(1.05);
 }
