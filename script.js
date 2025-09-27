@@ -116,4 +116,3 @@ function displayRanking(owners, totalVotes) {
 }
 
 loadRanking();
-
