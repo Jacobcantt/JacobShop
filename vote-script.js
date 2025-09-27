@@ -27,27 +27,24 @@ function confettiExplosion() {
     document.head.appendChild(script);
 }
 
-// Ulepszona funkcja: Custom grafika z canvas (ciemne tło, elegancki design, format stories)
-function shareScreenshot() {
+// Ulepszona funkcja: Async canvas z await na img i DB
+async function shareScreenshot() {
     const name = document.getElementById('owner-name').textContent;
     const votesElement = document.getElementById('votes-count');
-    const votes = votesElement.textContent.replace(' głosów', ''); // Wyciągnij czystą liczbę
-    const photoUrl = document.getElementById('owner-photo').src || '';  // URL zdjęcia
-
-    // Canvas: 1080x1920px (format stories/TikTok, pionowy)
+    const votes = votesElement.textContent.replace(' głosów', '').trim(); // Czysta liczba, trim na safety
+    const photoUrl = document.getElementById('owner-photo').src || '';
     const canvas = document.createElement('canvas');
     canvas.width = 1080;
     canvas.height = 1920;
     const ctx = canvas.getContext('2d');
 
-    // Ciemne tło z gradientem (czarne do ciemnoszare)
+    // Tło gradient + siatka (synchroniczne)
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
     gradient.addColorStop(0, '#000');
     gradient.addColorStop(1, '#111');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Subtelna siatka/tekstura (cienie – opcjonalnie, dla elegancji)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     for (let x = 0; x < canvas.width; x += 40) {
@@ -63,115 +60,157 @@ function shareScreenshot() {
         ctx.stroke();
     }
 
-    // Zdjęcie profilowe (okrągłe, z cieniem i ramką) – większe dla stories
-    if (photoUrl) {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-            // Cień pod zdjęciem
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 20;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 10;
+    console.log('Canvas init: Tło i siatka gotowe. Name:', name, 'Votes:', votes, 'Photo:', photoUrl); // Debug
 
-            // Okrągłe crop (większe koło)
-            ctx.beginPath();
-            ctx.arc(540, 400, 250, 0, 2 * Math.PI);
-            ctx.clip();
-            ctx.drawImage(img, 290, 150, 500, 500);  // Crop do koła, skalowane
-            ctx.restore();
+    // Promise dla zdjęcia (z fallback na initials)
+    const loadImagePromise = new Promise((resolve) => {
+        if (photoUrl) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                ctx.save(); // Zapisz stan
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 10;
 
-            // Rama wokół zdjęcia (biała z cieniem)
-            ctx.beginPath();
-            ctx.arc(540, 400, 250, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 5;
-            ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(540, 400, 250, 0, 2 * Math.PI);
+                ctx.clip();
+                ctx.drawImage(img, 290, 150, 500, 500);
+                ctx.restore(); // Przywróć stan
 
-            // Reset cienia
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(540, 400, 250, 0, 2 * Math.PI);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 5;
+                ctx.stroke();
+                ctx.restore();
 
-            finalizeCanvas();
-        };
-        img.src = photoUrl;
-    } else {
-        // Fallback: Elegancki placeholder z inicjałami (zamiast "?" – bardziej pro)
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                console.log('Zdjęcie załadowane i narysowane'); // Debug
+                resolve('photo_loaded');
+            };
+            img.onerror = () => {
+                console.warn('Błąd ładowania zdjęcia:', photoUrl); // Debug
+                // Fallback initials nawet z photoUrl błędnym
+                drawInitialsFallback();
+                resolve('fallback_used');
+            };
+            img.src = photoUrl;
+        } else {
+            drawInitialsFallback();
+            resolve('no_photo');
+        }
+    });
+
+    // Funkcja fallback initials (użyta w obydwu przypadkach)
+    function drawInitialsFallback() {
+        ctx.save();
         ctx.fillStyle = '#333';
         ctx.beginPath();
         ctx.arc(540, 400, 250, 0, 2 * Math.PI);
         ctx.fill();
+        ctx.restore();
+
+        ctx.save();
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 120px Inter';
+        ctx.font = 'bold 120px Arial, sans-serif'; // Fallback font
         ctx.textAlign = 'center';
-        const initials = name.charAt(0).toUpperCase(); // Pierwsza litera
+        const initials = name.charAt(0).toUpperCase();
         ctx.fillText(initials, 540, 450);
-        finalizeCanvas();
+        ctx.restore();
+        console.log('Fallback initials narysowane'); // Debug
     }
 
-    // Pobierz procent dla kontekstu (z loadOwner, ale tu dynamicznie)
-    let progressPercent = 0;
-    db.ref('owners').once('value').then(snap => {
-        let totalVotes = 0;
-        snap.forEach(child => { totalVotes += child.val().votes || 0; });
-        progressPercent = totalVotes > 0 ? Math.round((parseInt(votes) / totalVotes) * 100) : 0;
-    }).then(() => finalizeCanvas()); // Uruchom po pobraniu
+    // Promise dla progressPercent (z fallback z data-attr)
+    const loadProgressPromise = new Promise((resolve) => {
+        const fallbackPercent = parseInt(votesElement.getAttribute('data-percent') || 0);
+        if (fallbackPercent >= 0) {
+            console.log('Używam fallback percent z data-attr:', fallbackPercent); // Debug
+            resolve(fallbackPercent);
+            return;
+        }
+        // Jeśli brak fallback, pobierz z DB
+        db.ref('owners').once('value').then(snap => {
+            let totalVotes = 0;
+            snap.forEach(child => { totalVotes += child.val().votes || 0; });
+            const percent = totalVotes > 0 ? Math.round((parseInt(votes) / totalVotes) * 100) : 0;
+            console.log('Pobrano percent z DB:', percent, 'Total votes:', totalVotes); // Debug
+            resolve(percent);
+        }).catch(err => {
+            console.error('Błąd DB dla percent:', err); // Debug
+            resolve(0); // Fallback 0
+        });
+    });
+
+    // Await oba Promise
+    await Promise.all([loadImagePromise, loadProgressPromise]);
+    const progressPercent = await loadProgressPromise; // Ponieważ all, ale weź wartość
+
+    console.log('Wszystko async gotowe. Rysuję tekst z percent:', progressPercent); // Debug
+
+    // Teraz finalizeCanvas (synchroniczne, po wszystkich awaits)
+    finalizeCanvas();
 
     function finalizeCanvas() {
-        // Nick właściciela (biały, bold, centrowany, z cieniem)
+        ctx.save(); // Zapisz dla cieni
         ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
         ctx.shadowBlur = 5;
         ctx.shadowOffsetY = 2;
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 80px Inter';
+        ctx.font = 'bold 80px Arial, sans-serif'; // Fallback font
         ctx.textAlign = 'center';
         ctx.fillText(name, 540, 750);
+        ctx.restore(); // Reset cień
 
-        // Reset cienia dla reszty
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
-
-        // Liczba głosów (z ikoną gwiazdki, złoty akcent)
         ctx.fillStyle = '#ccc';
-        ctx.font = 'bold 50px Inter';
+        ctx.font = 'bold 50px Arial, sans-serif';
         ctx.fillText('Głosy:', 540, 850);
-        ctx.fillStyle = '#FFD700'; // Złoty
-        ctx.font = 'bold 70px Inter';
-        ctx.fillText(votes, 540, 930);
-        // Ikona prostej gwiazdki (jeśli chcesz full ikonę, użyj emoji lub SVG)
-        ctx.fillText('⭐', 700, 930); // Prosta ikona obok
 
-        // Procentowy udział (subtelny, szary)
+        ctx.fillStyle = '#FFD700'; // Złoty
+        ctx.font = 'bold 70px Arial, sans-serif';
+        ctx.fillText(votes, 540, 930);
+        ctx.fillText('⭐', 700, 930); // Ikona obok
+
         if (progressPercent > 0) {
             ctx.fillStyle = '#ccc';
-            ctx.font = 'italic 40px Inter';
+            ctx.font = 'italic 40px Arial, sans-serif';
             ctx.fillText(`${progressPercent}% w rankingu`, 540, 1000);
         }
 
-        // Napis "Dzięki za oddany głos!" (złoty, italic, z pulsującym cieniem)
+        // Napis (złoty, italic, cień)
+        ctx.save();
         ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
         ctx.shadowBlur = 10;
         ctx.fillStyle = '#FFD700';
-        ctx.font = 'italic 60px Inter';
+        ctx.font = 'italic 60px Arial, sans-serif';
         ctx.fillText('Dzięki za oddany głos!', 540, 1200);
+        ctx.restore();
 
-        // Hashtag #VoteWear (mały, na dole)
+        // Hashtag
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 40px Inter';
+        ctx.font = 'bold 40px Arial, sans-serif';
         ctx.fillText('#VoteWear', 540, 1700);
 
-        // Logo VoteWear na samym dole (małe, centrowane)
+        // Logo (async, ale nie blokuj export)
         const logoImg = new Image();
         logoImg.crossOrigin = 'anonymous';
         logoImg.onload = () => {
-            ctx.drawImage(logoImg, 500, 1750, 80, 80);  // Małe logo
-            ctx.shadowColor = 'transparent';  // Reset cienia
+            ctx.drawImage(logoImg, 500, 1750, 80, 80);
+            console.log('Logo załadowane'); // Debug
             exportCanvas();
         };
-        logoImg.onerror = () => exportCanvas(); // Fallback jeśli logo nie załaduje
+        logoImg.onerror = () => {
+            console.warn('Błąd ładowania logo – export bez'); // Debug
+            exportCanvas(); // Zawsze export
+        };
         logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
 
         function exportCanvas() {
+            console.log('Export canvas – gotowy do share/download'); // Debug
             canvas.toBlob((blob) => {
                 const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
                 const shareData = {
@@ -191,7 +230,7 @@ function shareScreenshot() {
                     a.click();
                     URL.revokeObjectURL(url);
                 }
-            }, 'image/png', 1.0);  // 100% jakość
+            }, 'image/png', 1.0);
         }
     }
 }
@@ -237,14 +276,14 @@ function loadOwner(id) {
             bioSection.style.display = 'block';
         }
 
-        // Pobierz sumę wszystkich votes dla % (ulepszone, z cache dla share)
+        // Pobierz sumę wszystkich votes dla % (z cache dla share)
         db.ref('owners').once('value').then(snap => {
             let totalVotes = 0;
             snap.forEach(child => { totalVotes += child.val().votes || 0; });
             const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
             console.log('Progress % w profilu:', progressPercent, 'Suma:', totalVotes);
             document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
-            // Zapisz procent w data attr dla share (szybki dostęp)
+            // Zapisz procent w data attr dla share (szybki fallback)
             votesElement.setAttribute('data-percent', progressPercent);
         });
 
