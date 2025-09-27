@@ -403,6 +403,48 @@ form button:hover {
     transform: scale(1.05);
 }
 
+/* NOWE: Wyśrodkowanie TikTok Handle w profilu */
+#owner-tiktok {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #ccc;
+    margin: 0.5rem 0;
+    font-weight: 500;
+}
+
+/* NOWE: Style dla flip animacji zdjęcia w profilu */
+.flip-container {
+    cursor: pointer;
+}
+
+.flip-card {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    transform-style: preserve-3d;
+    transition: transform 1s;
+}
+
+.flip-card.flipped {
+    transform: rotateY(360deg);
+}
+
+.front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back {
+    transform: rotateY(180deg);
+    background: #000;
+}
+
 /* Responsywność dla mobile – powiększone zdjęcia, stackowane elementy */
 @media (max-width: 768px) {
     nav {
@@ -476,11 +518,3 @@ form button:hover {
 .top-2 .progress-bar div, .top-3 .progress-bar div {
     background: #C0C0C0;  /* Srebrny/brązowy pasek */
 }
-
-
-
-
-
-
-
-
