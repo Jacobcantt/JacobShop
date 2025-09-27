@@ -27,16 +27,17 @@ function confettiExplosion() {
     document.head.appendChild(script);
 }
 
-// Ulepszona funkcja: Custom grafika z canvas (ciemne tło, elegancki design)
+// Ulepszona funkcja: Custom grafika z canvas (ciemne tło, elegancki design, format stories)
 function shareScreenshot() {
     const name = document.getElementById('owner-name').textContent;
-    const votes = document.getElementById('votes-count').textContent;
+    const votesElement = document.getElementById('votes-count');
+    const votes = votesElement.textContent.replace(' głosów', ''); // Wyciągnij czystą liczbę
     const photoUrl = document.getElementById('owner-photo').src || '';  // URL zdjęcia
 
-    // Canvas: 400x600px, ciemne tło
+    // Canvas: 1080x1920px (format stories/TikTok, pionowy)
     const canvas = document.createElement('canvas');
-    canvas.width = 400;
-    canvas.height = 600;
+    canvas.width = 1080;
+    canvas.height = 1920;
     const ctx = canvas.getContext('2d');
 
     // Ciemne tło z gradientem (czarne do ciemnoszare)
@@ -49,42 +50,42 @@ function shareScreenshot() {
     // Subtelna siatka/tekstura (cienie – opcjonalnie, dla elegancji)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
-    for (let x = 0; x < canvas.width; x += 20) {
+    for (let x = 0; x < canvas.width; x += 40) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, canvas.height);
         ctx.stroke();
     }
-    for (let y = 0; y < canvas.height; y += 20) {
+    for (let y = 0; y < canvas.height; y += 40) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(canvas.width, y);
         ctx.stroke();
     }
 
-    // Zdjęcie profilowe (okrągłe, z cieniem i ramką)
+    // Zdjęcie profilowe (okrągłe, z cieniem i ramką) – większe dla stories
     if (photoUrl) {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
             // Cień pod zdjęciem
             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 20;
             ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 5;
+            ctx.shadowOffsetY = 10;
 
-            // Okrągłe crop
+            // Okrągłe crop (większe koło)
             ctx.beginPath();
-            ctx.arc(200, 150, 110, 0, 2 * Math.PI);  // Większe koło
+            ctx.arc(540, 400, 250, 0, 2 * Math.PI);
             ctx.clip();
-            ctx.drawImage(img, 90, 40, 220, 220);  // Crop do koła
+            ctx.drawImage(img, 290, 150, 500, 500);  // Crop do koła, skalowane
             ctx.restore();
 
             // Rama wokół zdjęcia (biała z cieniem)
             ctx.beginPath();
-            ctx.arc(200, 150, 110, 0, 2 * Math.PI);
+            ctx.arc(540, 400, 250, 0, 2 * Math.PI);
             ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 5;
             ctx.stroke();
 
             // Reset cienia
@@ -95,48 +96,79 @@ function shareScreenshot() {
         };
         img.src = photoUrl;
     } else {
-        // Fallback placeholder (ciemny krąg z "?"
+        // Fallback: Elegancki placeholder z inicjałami (zamiast "?" – bardziej pro)
         ctx.fillStyle = '#333';
         ctx.beginPath();
-        ctx.arc(200, 150, 110, 0, 2 * Math.PI);
+        ctx.arc(540, 400, 250, 0, 2 * Math.PI);
         ctx.fill();
         ctx.fillStyle = '#fff';
-        ctx.font = 'bold 32px Inter';
+        ctx.font = 'bold 120px Inter';
         ctx.textAlign = 'center';
-        ctx.fillText('?', 200, 170);
+        const initials = name.charAt(0).toUpperCase(); // Pierwsza litera
+        ctx.fillText(initials, 540, 450);
         finalizeCanvas();
     }
 
+    // Pobierz procent dla kontekstu (z loadOwner, ale tu dynamicznie)
+    let progressPercent = 0;
+    db.ref('owners').once('value').then(snap => {
+        let totalVotes = 0;
+        snap.forEach(child => { totalVotes += child.val().votes || 0; });
+        progressPercent = totalVotes > 0 ? Math.round((parseInt(votes) / totalVotes) * 100) : 0;
+    }).then(() => finalizeCanvas()); // Uruchom po pobraniu
+
     function finalizeCanvas() {
-        // Nazwa właściciela (biały, bold, centrowany)
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 32px Inter';  // Większy font
-        ctx.textAlign = 'center';
-        ctx.fillText(name, 200, 320);
-
-        // Liczba głosów (szary tekst, z ikoną)
-        ctx.fillStyle = '#ccc';
-        ctx.font = '24px Inter';
-        ctx.fillText('Głosy:', 200, 370);
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 28px Inter';
-        ctx.fillText(votes, 200, 410);
-
-        // Napis "Dzięki za głos!" (złoty, italic, z cieniem)
-        ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+        // Nick właściciela (biały, bold, centrowany, z cieniem)
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
         ctx.shadowBlur = 5;
-        ctx.fillStyle = '#FFD700';
-        ctx.font = 'italic 28px Inter';
-        ctx.fillText('Dzięki za głos!', 200, 470);
+        ctx.shadowOffsetY = 2;
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 80px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(name, 540, 750);
 
-        // Logo VoteWear na dole (małe, centrowane)
+        // Reset cienia dla reszty
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+
+        // Liczba głosów (z ikoną gwiazdki, złoty akcent)
+        ctx.fillStyle = '#ccc';
+        ctx.font = 'bold 50px Inter';
+        ctx.fillText('Głosy:', 540, 850);
+        ctx.fillStyle = '#FFD700'; // Złoty
+        ctx.font = 'bold 70px Inter';
+        ctx.fillText(votes, 540, 930);
+        // Ikona prostej gwiazdki (jeśli chcesz full ikonę, użyj emoji lub SVG)
+        ctx.fillText('⭐', 700, 930); // Prosta ikona obok
+
+        // Procentowy udział (subtelny, szary)
+        if (progressPercent > 0) {
+            ctx.fillStyle = '#ccc';
+            ctx.font = 'italic 40px Inter';
+            ctx.fillText(`${progressPercent}% w rankingu`, 540, 1000);
+        }
+
+        // Napis "Dzięki za oddany głos!" (złoty, italic, z pulsującym cieniem)
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'italic 60px Inter';
+        ctx.fillText('Dzięki za oddany głos!', 540, 1200);
+
+        // Hashtag #VoteWear (mały, na dole)
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 40px Inter';
+        ctx.fillText('#VoteWear', 540, 1700);
+
+        // Logo VoteWear na samym dole (małe, centrowane)
         const logoImg = new Image();
         logoImg.crossOrigin = 'anonymous';
         logoImg.onload = () => {
-            ctx.drawImage(logoImg, 160, 500, 80, 80);  // Małe logo
+            ctx.drawImage(logoImg, 500, 1750, 80, 80);  // Małe logo
             ctx.shadowColor = 'transparent';  // Reset cienia
             exportCanvas();
         };
+        logoImg.onerror = () => exportCanvas(); // Fallback jeśli logo nie załaduje
         logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
 
         function exportCanvas() {
@@ -145,7 +177,7 @@ function shareScreenshot() {
                 const shareData = {
                     files: [file],
                     title: 'VoteWear - Mój głos!',
-                    text: `Właśnie zagłosowałem na ${name} w #VoteWear! ${votes}`
+                    text: `Właśnie zagłosowałem na ${name} w #VoteWear! ${votes} głosów`
                 };
 
                 if (navigator.canShare && navigator.canShare({ files: shareData.files })) {
@@ -205,13 +237,15 @@ function loadOwner(id) {
             bioSection.style.display = 'block';
         }
 
-        // Pobierz sumę wszystkich votes dla %
+        // Pobierz sumę wszystkich votes dla % (ulepszone, z cache dla share)
         db.ref('owners').once('value').then(snap => {
             let totalVotes = 0;
             snap.forEach(child => { totalVotes += child.val().votes || 0; });
             const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
             console.log('Progress % w profilu:', progressPercent, 'Suma:', totalVotes);
             document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
+            // Zapisz procent w data attr dla share (szybki dostęp)
+            votesElement.setAttribute('data-percent', progressPercent);
         });
 
         const voteBtn = document.getElementById('vote-btn');
@@ -260,6 +294,8 @@ function voteForOwner(id) {
                 snap.forEach(child => { totalVotes += child.val().votes || 0; });
                 const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
                 document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
+                // Update data attr dla share
+                document.getElementById('votes-count').setAttribute('data-percent', progressPercent);
             });
         });
     }, 2000);  // 2 sekundy po confetti
