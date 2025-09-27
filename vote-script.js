@@ -314,23 +314,17 @@ function loadOwner(id) {
         const shareSection = document.getElementById('share-section');
 
         if (source === 'ranking') {
-          // POPRAWKA: Debug – sprawdź, czy blok się wykonuje
-          console.log('DEBUG: W trybie ranking – dodawanie listenera z alertem');
-    
-          voteBtn.disabled = true;
-          voteBtn.textContent = 'Głosuj!';
-          voteBtn.addEventListener('click', (e) => {
-              // POPRAWKA: Debug – sprawdź, czy kliknięcie jest wykrywany
-              console.log('DEBUG: Kliknięcie przycisku wykryte!');
-              alert('Głos możesz oddać tylko po przez zeskanowanie kodu QR z koszulki właściciela');
-          });
-          shareSection.style.display = 'none';
-          document.title = `Profil: ${owner.name} - JacobcanVote`;
-    
-          // POPRAWKA: Dodatkowy debug – sprawdź stan przycisku po załadowaniu
-          console.log('DEBUG: Przycisk disabled?', voteBtn.disabled);
-          console.log('DEBUG: Source z URL:', source);
-      } else {
+            // POPRAWKA: Symulacja disabled – wizualnie wyłączony, ale klikalny z alertem
+            voteBtn.textContent = 'Głosuj!';
+            voteBtn.classList.add('disabled-simulated');  // Dodaj klasę CSS zamiast disabled=true
+            voteBtn.addEventListener('click', (e) => {
+                e.preventDefault();  // Zapobiegaj domyślnemu zachowaniu
+                console.log('DEBUG: Kliknięcie wykryte – alert!');
+                alert('Głos możesz oddać tylko po przez zeskanowanie kodu QR z koszulki właściciela');
+            });
+            shareSection.style.display = 'none';
+            document.title = `Profil: ${owner.name} - JacobcanVote`;
+        } else {
             const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
             const votedKey = `voted_${id}_${deviceId}`;
             if (localStorage.getItem(votedKey)) {
@@ -404,4 +398,3 @@ function shareTwitter() {
     const text = `Właśnie zagłosowałem na ${document.getElementById('owner-name').textContent} w #JacobcanVote! ${window.location.href}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
 }
-
