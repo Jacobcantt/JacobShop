@@ -124,13 +124,14 @@ async function shareScreenshot() {
 
     // Promise dla ranku i procentu (z fallback z data-attr, plus obliczanie miejsca)
     const loadRankPromise = new Promise((resolve) => {
+        // Spróbuj fallback z data-attr (teraz pełne: place i percent)
+        const fallbackPlace = votesElement.getAttribute('data-place') || '-';
         const fallbackPercent = parseInt(votesElement.getAttribute('data-percent') || 0);
-        if (fallbackPercent >= 0) {
-            // Jeśli fallback, załóż miejsce na podstawie votes (uproszczone, ale szybkie)
-            resolve({ place: '-', percent: fallbackPercent });
+        if (fallbackPlace !== null && fallbackPercent >= 0) {
+            resolve({ place: fallbackPlace, percent: fallbackPercent });
             return;
         }
-        // Pobierz z DB i oblicz pełne dane
+        // Jeśli brak fallback, pobierz z DB i oblicz pełne dane
         db.ref('owners').once('value').then(snap => {
             let owners = [];
             let totalVotes = 0;
@@ -144,7 +145,7 @@ async function shareScreenshot() {
             // Znajdź miejsce current ownera
             const place = owners.findIndex(o => o.id === ownerId) + 1;
             const percent = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
-            resolve({ place: place >= 0 ? place : '-', percent });
+            resolve({ place: place >= 0 ? place.toString() : '-', percent });
         }).catch(err => {
             resolve({ place: '-', percent: 0 }); // Fallback
         });
@@ -284,15 +285,26 @@ function loadOwner(id) {
             bioSection.style.display = 'block';
         }
 
-        // Pobierz sumę wszystkich votes dla % (z cache dla share)
+        // Pobierz sumę wszystkich votes, miejsce i % (z cache dla share)
         db.ref('owners').once('value').then(snap => {
+            let owners = [];
             let totalVotes = 0;
-            snap.forEach(child => { totalVotes += child.val().votes || 0; });
+            snap.forEach(child => {
+                const o = child.val();
+                owners.push({ id: child.key, votes: o.votes || 0 });
+                totalVotes += o.votes || 0;
+            });
+            // Sortuj po votes descending
+            owners.sort((a, b) => b.votes - a.votes);
+            // Znajdź miejsce current ownera
+            const place = owners.findIndex(o => o.id === id) + 1;
             const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
-            console.log('Progress % w profilu:', progressPercent, 'Suma:', totalVotes);
+            console.log('Progress % w profilu:', progressPercent, 'Miejsce:', place, 'Suma:', totalVotes);
             document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
-            // Zapisz procent w data attr dla share (szybki fallback)
-            document.getElementById('votes-count').setAttribute('data-percent', progressPercent);
+            // Zapisz pełne dane w data attr dla share (szybki fallback)
+            const votesElement = document.getElementById('votes-count');
+            votesElement.setAttribute('data-place', place >= 0 ? place.toString() : '-');
+            votesElement.setAttribute('data-percent', progressPercent);
         });
 
         const voteBtn = document.getElementById('vote-btn');
@@ -335,14 +347,25 @@ function voteForOwner(id) {
             const owner = snapshot.val();
             document.getElementById('votes-count').textContent = `${owner.votes} głosów`;
 
-            // Update progress
+            // Update progress i miejsce
             db.ref('owners').once('value').then(snap => {
+                let owners = [];
                 let totalVotes = 0;
-                snap.forEach(child => { totalVotes += child.val().votes || 0; });
+                snap.forEach(child => {
+                    const o = child.val();
+                    owners.push({ id: child.key, votes: o.votes || 0 });
+                    totalVotes += o.votes || 0;
+                });
+                // Sortuj po votes descending
+                owners.sort((a, b) => b.votes - a.votes);
+                // Znajdź nowe miejsce
+                const place = owners.findIndex(o => o.id === id) + 1;
                 const progressPercent = totalVotes > 0 ? Math.round((owner.votes / totalVotes) * 100) : 0;
                 document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
                 // Update data attr dla share
-                document.getElementById('votes-count').setAttribute('data-percent', progressPercent);
+                const votesElement = document.getElementById('votes-count');
+                votesElement.setAttribute('data-place', place >= 0 ? place.toString() : '-');
+                votesElement.setAttribute('data-percent', progressPercent);
             });
         });
     }, 2000);  // 2 sekundy po confetti
