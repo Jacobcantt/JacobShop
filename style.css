@@ -413,7 +413,17 @@ form button:hover {
     margin: 0.5rem 0;
     font-weight: 500;
 }
+/* POPRAWKA: Symulacja disabled dla przycisku – wizualnie wyłączony, ale klikalny */
+.vote-button.disabled-simulated {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.6;
+}
 
+.vote-button.disabled-simulated:hover {
+    transform: none;  /* Brak hover efektu */
+}
 /* Responsywność dla mobile – powiększone zdjęcia, stackowane elementy */
 @media (max-width: 768px) {
     nav {
@@ -487,3 +497,4 @@ form button:hover {
 .top-2 .progress-bar div, .top-3 .progress-bar div {
     background: #C0C0C0;  /* Srebrny/brązowy pasek */
 }
+
