@@ -60,8 +60,6 @@ async function shareScreenshot() {
         ctx.stroke();
     }
 
-    console.log('Canvas init: Tło i siatka gotowe. Name:', name, 'Votes:', votes, 'Photo:', photoUrl); // Debug
-
     // Promise dla zdjęcia (z fallback na initials)
     const loadImagePromise = new Promise((resolve) => {
         if (photoUrl) {
@@ -90,11 +88,9 @@ async function shareScreenshot() {
 
                 ctx.shadowColor = 'transparent';
                 ctx.shadowBlur = 0;
-                console.log('Zdjęcie załadowane i narysowane'); // Debug
                 resolve('photo_loaded');
             };
             img.onerror = () => {
-                console.warn('Błąd ładowania zdjęcia:', photoUrl); // Debug
                 // Fallback initials nawet z photoUrl błędnym
                 drawInitialsFallback();
                 resolve('fallback_used');
@@ -119,17 +115,16 @@ async function shareScreenshot() {
         ctx.fillStyle = '#fff';
         ctx.font = 'bold 120px Arial, sans-serif'; // Fallback font
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle'; // Wyrównanie pionowe
         const initials = name.charAt(0).toUpperCase();
-        ctx.fillText(initials, 540, 450);
+        ctx.fillText(initials, 540, 400);
         ctx.restore();
-        console.log('Fallback initials narysowane'); // Debug
     }
 
     // Promise dla progressPercent (z fallback z data-attr)
     const loadProgressPromise = new Promise((resolve) => {
         const fallbackPercent = parseInt(votesElement.getAttribute('data-percent') || 0);
         if (fallbackPercent >= 0) {
-            console.log('Używam fallback percent z data-attr:', fallbackPercent); // Debug
             resolve(fallbackPercent);
             return;
         }
@@ -138,79 +133,80 @@ async function shareScreenshot() {
             let totalVotes = 0;
             snap.forEach(child => { totalVotes += child.val().votes || 0; });
             const percent = totalVotes > 0 ? Math.round((parseInt(votes) / totalVotes) * 100) : 0;
-            console.log('Pobrano percent z DB:', percent, 'Total votes:', totalVotes); // Debug
             resolve(percent);
         }).catch(err => {
-            console.error('Błąd DB dla percent:', err); // Debug
             resolve(0); // Fallback 0
         });
     });
 
     // Await oba Promise
     await Promise.all([loadImagePromise, loadProgressPromise]);
-    const progressPercent = await loadProgressPromise; // Ponieważ all, ale weź wartość
-
-    console.log('Wszystko async gotowe. Rysuję tekst z percent:', progressPercent); // Debug
+    const progressPercent = await loadProgressPromise;
 
     // Teraz finalizeCanvas (synchroniczne, po wszystkich awaits)
     finalizeCanvas();
 
     function finalizeCanvas() {
-        ctx.save(); // Zapisz dla cieni
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 5;
-        ctx.shadowOffsetY = 2;
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 80px Arial, sans-serif'; // Fallback font
+        // Ustaw globalne wyrównanie dla tekstu
         ctx.textAlign = 'center';
-        ctx.fillText(name, 540, 750);
-        ctx.restore(); // Reset cień
+        ctx.textBaseline = 'middle';
 
-        ctx.fillStyle = '#ccc';
-        ctx.font = 'bold 50px Arial, sans-serif';
-        ctx.fillText('Głosy:', 540, 850);
-
-        ctx.fillStyle = '#FFD700'; // Złoty
-        ctx.font = 'bold 70px Arial, sans-serif';
-        ctx.fillText(votes, 540, 930);
-        ctx.fillText('⭐', 700, 930); // Ikona obok
-
-        if (progressPercent > 0) {
-            ctx.fillStyle = '#ccc';
-            ctx.font = 'italic 40px Arial, sans-serif';
-            ctx.fillText(`${progressPercent}% w rankingu`, 540, 1000);
-        }
-
-        // Napis (złoty, italic, cień)
+        // Nick właściciela (biały, bold, centrowany, z lekkim cieniem)
         ctx.save();
-        ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = '#FFD700';
-        ctx.font = 'italic 60px Arial, sans-serif';
-        ctx.fillText('Dzięki za oddany głos!', 540, 1200);
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetY = 1;
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 70px Arial, sans-serif'; // Mniejszy dla proporcji
+        ctx.fillText(name, 540, 800); // Większy odstęp od zdjęcia
         ctx.restore();
 
-        // Hashtag
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 40px Arial, sans-serif';
-        ctx.fillText('#VoteWear', 540, 1700);
+        // Głosy: (szary, bold)
+        ctx.fillStyle = '#ccc';
+        ctx.font = 'bold 45px Arial, sans-serif'; // Mniejszy
+        ctx.fillText('Głosy:', 540, 900);
 
-        // Logo (async, ale nie blokuj export)
+        // Liczba głosów (złoty, bold) + ikona
+        ctx.fillStyle = '#FFD700'; // Złoty
+        ctx.font = 'bold 65px Arial, sans-serif';
+        ctx.fillText(votes, 540, 1000);
+        ctx.font = 'bold 50px Arial, sans-serif'; // Mniejsza ikona
+        ctx.fillText('⭐', 650, 1000); // Bliżej liczby
+
+        // Procentowy udział (subtelny, szary, italic)
+        if (progressPercent > 0) {
+            ctx.fillStyle = '#ccc';
+            ctx.font = 'italic 35px Arial, sans-serif'; // Mniejszy, by nie nakładać
+            ctx.fillText(`${progressPercent}% w rankingu`, 540, 1100);
+        }
+
+        // Napis "Dzięki za oddany głos!" (złoty, italic, cień – niżej, mniejszy)
+        ctx.save();
+        ctx.shadowColor = 'rgba(255, 215, 0, 0.4)';
+        ctx.shadowBlur = 5;
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'italic 50px Arial, sans-serif'; // Mniejszy, by nie ciąć
+        ctx.fillText('Dzięki za oddany głos!', 540, 1400); // Większy odstęp
+        ctx.restore();
+
+        // Hashtag #VoteWear (biały, bold, niżej)
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 35px Arial, sans-serif';
+        ctx.fillText('#VoteWear', 540, 1800);
+
+        // Logo (async, ale nie blokuj export – mniejsze, niżej)
         const logoImg = new Image();
         logoImg.crossOrigin = 'anonymous';
         logoImg.onload = () => {
-            ctx.drawImage(logoImg, 500, 1750, 80, 80);
-            console.log('Logo załadowane'); // Debug
+            ctx.drawImage(logoImg, 510, 1850, 60, 60); // Mniejsze, centrowane niżej
             exportCanvas();
         };
         logoImg.onerror = () => {
-            console.warn('Błąd ładowania logo – export bez'); // Debug
             exportCanvas(); // Zawsze export
         };
         logoImg.src = 'https://p19-common-sign-useastred.tiktokcdn-eu.com/tos-useast2a-avt-0068-euttp/fb6037524521e68cc26cafa4494d4c58~tplv-tiktokx-cropcenter:720:720.jpeg?dr=10399&refresh_token=76767a25&x-expires=1759003200&x-signature=TG4TByTHEFTeMdlTl3WMgr6UinM%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=no1a';
 
         function exportCanvas() {
-            console.log('Export canvas – gotowy do share/download'); // Debug
             canvas.toBlob((blob) => {
                 const file = new File([blob], `${name}-vote-wear.png`, { type: 'image/png' });
                 const shareData = {
@@ -284,7 +280,7 @@ function loadOwner(id) {
             console.log('Progress % w profilu:', progressPercent, 'Suma:', totalVotes);
             document.querySelector('.progress-fill').style.width = `${progressPercent}%`;
             // Zapisz procent w data attr dla share (szybki fallback)
-            votesElement.setAttribute('data-percent', progressPercent);
+            document.getElementById('votes-count').setAttribute('data-percent', progressPercent);
         });
 
         const voteBtn = document.getElementById('vote-btn');
