@@ -223,7 +223,7 @@ h2 {
     display: block;
 }
 
-.vote-button:hover:not(:disabled) {  /* POPRAWKA: Hover tylko jeśli nie disabled */
+.vote-button:hover:not(:disabled) {
     transform: scale(1.05);
 }
 
@@ -231,7 +231,7 @@ h2 {
     background: #666;
     cursor: not-allowed;
     transform: none;
-    opacity: 0.6;  /* POPRAWKA: Widoczny, ale przyciemniony */
+    opacity: 0.6;
 }
 
 #owner-photo {
