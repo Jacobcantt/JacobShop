@@ -8,14 +8,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script> <!-- NOWE: Storage -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script> <!-- Storage -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
     <div id="particles-js"></div>
     <header>
         <nav>
-            <h1>JacobcanVote - Admin</h1>
+            <div style="display:flex; align-items:center;">
+                <img src="./assets/logo.jpg" alt="JacobcanVote Logo" class="logo"> <!-- NOWE: Lokalny plik z repo -->
+                <h1>JacobcanVote - Admin</h1>
+            </div>
             <ul>
                 <li><a href="index.html"><i class="fas fa-chart-bar"></i> Ranking</a></li>
             </ul>
@@ -37,7 +40,7 @@
                 <input type="text" id="owner-name" placeholder="Imię i nazwisko">
                 <input type="text" id="tiktok-handle" placeholder="TikTok Handle (@example)">
                 <input type="url" id="tiktok-link" placeholder="Link do TikTok[](https://www.tiktok.com/@example)">
-                <input type="file" id="photo-file" accept="image/*"> <!-- NOWE: Input file zamiast URL -->
+                <input type="file" id="photo-file" accept="image/*"> <!-- Input file dla zdjęć -->
                 <textarea id="owner-bio" placeholder="Krótki opis/bio (opcjonalne)"></textarea>
                 <button type="submit">Dodaj i Pokaż Link</button>
             </form>
