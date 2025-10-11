@@ -11,6 +11,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const storage = firebase.storage();  // NOWE: Import Storage
 
 const ADMIN_PASSWORD = 'admin123';
 
@@ -38,13 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('add-owner-form').addEventListener('submit', addOwner);
 
-function addOwner(e) {
+async function addOwner(e) {  // NOWE: async dla await uploadu
     e.preventDefault();
     const name = document.getElementById('owner-name').value;
     const handle = document.getElementById('tiktok-handle').value;
     const link = document.getElementById('tiktok-link').value;
-    const photoUrl = document.getElementById('photo-url').value;
-    const bio = document.getElementById('owner-bio').value.trim();  // Nowy: opis
+    const bio = document.getElementById('owner-bio').value.trim();
+    const photoFile = document.getElementById('photo-file').files[0];  // NOWE: Pobierz plik
 
     const newOwnerRef = db.ref('owners').push();
     const ownerId = newOwnerRef.key;
@@ -58,13 +59,26 @@ function addOwner(e) {
         createdAt: Date.now()
     };
 
-    if (photoUrl) {
-        updates.photoUrl = photoUrl;
-    }
     if (bio) {
-        updates.bio = bio;  // Zapisz bio jeśli podane
+        updates.bio = bio;
     }
 
+    // NOWE: Upload zdjęcia do Storage, jeśli plik istnieje
+    let photoUrl = null;
+    if (photoFile) {
+        try {
+            const storageRef = storage.ref().child(`owners/${ownerId}/profile.jpg`);  // Ścieżka: owners/{id}/profile.jpg
+            const snapshot = await storageRef.put(photoFile);  // Upload
+            photoUrl = await snapshot.ref.getDownloadURL();  // Pobierz trwały URL
+            updates.photoUrl = photoUrl;  // Zapisz w DB
+            console.log('Zdjęcie uploaded: ', photoUrl);
+        } catch (error) {
+            console.error('Błąd uploadu zdjęcia:', error);
+            alert('Błąd uploadu zdjęcia – spróbuj ponownie lub pomiń.');
+        }
+    }
+
+    // Zapisz do DB (z photoUrl jeśli uploaded)
     newOwnerRef.set(updates).then(() => {
         console.log('Właściciel dodany pomyślnie!');
         loadOwners();
