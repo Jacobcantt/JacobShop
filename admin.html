@@ -6,6 +6,10 @@
     <title>JacobcanVote - Admin</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-storage-compat.js"></script> <!-- NOWE: Storage -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
     <div id="particles-js"></div>
@@ -33,7 +37,7 @@
                 <input type="text" id="owner-name" placeholder="Imię i nazwisko">
                 <input type="text" id="tiktok-handle" placeholder="TikTok Handle (@example)">
                 <input type="url" id="tiktok-link" placeholder="Link do TikTok[](https://www.tiktok.com/@example)">
-                <input type="url" id="photo-url" placeholder="URL zdjęcia profilowego (opcjonalne)">
+                <input type="file" id="photo-file" accept="image/*"> <!-- NOWE: Input file zamiast URL -->
                 <textarea id="owner-bio" placeholder="Krótki opis/bio (opcjonalne)"></textarea>
                 <button type="submit">Dodaj i Pokaż Link</button>
             </form>
@@ -49,9 +53,6 @@
         </section>
     </main>
 
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="admin-script.js"></script>
 </body>
 </html>
